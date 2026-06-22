@@ -3595,7 +3595,7 @@ function confirmSavePoint() {
             currentActiveLayer = null,
             classColorMap = new Map();
         const BACKEND_URL =
-            "https://script.google.com/macros/s/AKfycbx2OcF2nVTAFmhcb_1vVEXwvaEW7tALjZ8W_VqVaRhBFq1OuYC9TFR4eqJ11j4HWev4/exec";
+            "https://script.google.com/macros/s/AKfycbw02uPGUv5Am_ekrb07AR_qtWMt_k9ZE5LoN34_cNNZgtyaGvHM8dohrjcusX3ERnFB/exec";
         let defaultRows = [
             {
                 from: "Corner 1",
@@ -3796,42 +3796,124 @@ function confirmSavePoint() {
             try {
                 const resp = await fetch(`${BACKEND_URL}?action=get&data_type=clup&_=${Date.now()}`);
                 const data = await resp.json();
-                clupRecords = Array.isArray(data) ? data : [];
+                
+                // Handle different response formats
+                if (Array.isArray(data)) {
+                    clupRecords = data;
+                } else if (data.data && Array.isArray(data.data)) {
+                    clupRecords = data.data;
+                } else if (data.records && Array.isArray(data.records)) {
+                    clupRecords = data.records;
+                } else {
+                    clupRecords = [];
+                }
+                
+                console.log("CLUP records loaded:", clupRecords.length);
                 localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
                 populateProvinces();
             } catch (e) {
-                clupRecords = JSON.parse(localStorage.getItem("clupRecords") || "[]");
+                console.error("Error fetching CLUP records:", e);
+                // Try to load from localStorage
+                try {
+                    const stored = localStorage.getItem("clupRecords");
+                    clupRecords = stored ? JSON.parse(stored) : [];
+                    console.log("Loaded from localStorage:", clupRecords.length);
+                } catch (e2) {
+                    clupRecords = [];
+                }
                 populateProvinces();
             }
         }
+
         function populateProvinces() {
-    let select = document.getElementById("provinceSelect");
-    // Hardcoded list of 6 provinces
-    const provinces = ["Negros Occidental", "Negros Oriental", "Siquijor"];
-    
-    select.innerHTML = '<option value="">-- Choose Province --</option>' +
-        provinces.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
-}
-        function filterLguByProvince() {
-            let prov = document.getElementById("provinceSelect").value;
-            let lguSelect = document.getElementById("lguSelect");
-            lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
-            if (!prov) return;
-            let filtered = clupRecords.filter((p) => (p.Province || p.province) === prov);
-            let unique = new Map();
-            filtered.forEach((p) => {
-                let name = p.LGU || p.lgu;
-                if (name && !unique.has(name)) unique.set(name, p);
+            let select = document.getElementById("provinceSelect");
+            
+            // Clear existing options
+            select.innerHTML = '<option value="">-- Choose Province --</option>';
+            
+            // Get unique provinces from clupRecords
+            const provinces = new Set();
+            clupRecords.forEach(record => {
+                const prov = record.Province || record.province;
+                if (prov) provinces.add(prov);
             });
-            unique.forEach((plan, name) => {
-                let opt = document.createElement("option");
-                opt.value = name;
-                opt.textContent = name;
-                opt.dataset.record = JSON.stringify(plan);
+            
+            console.log("Provinces found in CLUP data:", provinces.size);
+            
+            // If no provinces found in records, use hardcoded fallback
+            if (provinces.size === 0) {
+                const fallback = ["Negros Occidental", "Negros Oriental", "Siquijor"];
+                fallback.forEach(p => {
+                    const opt = document.createElement("option");
+                    opt.value = p;
+                    opt.textContent = p;
+                    select.appendChild(opt);
+                });
+            } else {
+                // Add provinces from records
+                provinces.forEach(p => {
+                    const opt = document.createElement("option");
+                    opt.value = p;
+                    opt.textContent = p;
+                    select.appendChild(opt);
+                });
+            }
+        }
+
+        function filterLguByProvince() {
+            let provSelect = document.getElementById("provinceSelect");
+            let prov = provSelect.value;
+            let lguSelect = document.getElementById("lguSelect");
+            
+            lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
+            lguSelect.disabled = true;
+            
+            if (!prov) return;
+            
+            console.log("Filtering LGUs for province:", prov);
+            console.log("Available CLUP records:", clupRecords.length);
+            
+            // Filter records by province (case-insensitive)
+            let filtered = clupRecords.filter(record => {
+                const recordProv = (record.Province || record.province || "").toLowerCase();
+                return recordProv === prov.toLowerCase();
+            });
+            
+            console.log("Filtered records:", filtered.length);
+            
+            // Use a Map to get unique LGUs
+            let uniqueLGUs = new Map();
+            filtered.forEach(record => {
+                const lguName = record.LGU || record.lgu || record["LGU Name"] || record.lgu_name;
+                if (lguName && !uniqueLGUs.has(lguName)) {
+                    uniqueLGUs.set(lguName, record);
+                }
+            });
+            
+            console.log("Unique LGUs found:", uniqueLGUs.size);
+            
+            if (uniqueLGUs.size === 0) {
+                const opt = document.createElement("option");
+                opt.value = "";
+                opt.textContent = "No LGUs found for this province";
+                opt.disabled = true;
+                lguSelect.appendChild(opt);
+                lguSelect.disabled = true;
+                return;
+            }
+            
+            // Add LGUs to dropdown
+            uniqueLGUs.forEach((record, lguName) => {
+                const opt = document.createElement("option");
+                opt.value = lguName;
+                opt.textContent = lguName;
+                opt.dataset.record = JSON.stringify(record);
                 lguSelect.appendChild(opt);
             });
+            
             lguSelect.disabled = false;
         }
+
         function fillFromCLUP() {
             let sel = document.getElementById("lguSelect");
             let opt = sel.options[sel.selectedIndex];
