@@ -3807,7 +3807,7 @@ function confirmSavePoint() {
         function populateProvinces() {
     let select = document.getElementById("provinceSelect");
     // Hardcoded list of 6 provinces
-    const provinces = ["Aklan", "Antique", "Capiz", "Guimarras", "Iloilo", "Iloilo City"];
+    const provinces = ["Negros Occidental", "Negros Oriental", "Siquijor"];
     
     select.innerHTML = '<option value="">-- Choose Province --</option>' +
         provinces.map(p => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`).join("");
