@@ -681,7 +681,7 @@ footer {
   <div class="page-header">
     <div class="container">
       <h1>LGU Information Management</h1>
-      <p>Comprehensive database of Local Government Units in Western Visayas</p>
+      <p>Comprehensive database of Local Government Units in Negros Island Region</p>
     </div>
   </div>
 
@@ -705,7 +705,7 @@ footer {
   <div id="lguModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>🏛️ Register New LGU</h2><button class="close-modal" onclick="closeModal('lguModal')">✕</button></div>
   <form id="lguRegForm"><div class="form-grid"><div class="form-group"><label>Province *</label><select id="regProvince" required><option value="">-- Select Province --</option></select></div>
   <div class="form-group"><label>Municipality/City *</label><select id="regMunicipality" required><option value="">-- Select Municipality/City --</option></select></div>
-  <div class="form-group"><label>Region</label><input type="text" id="regRegion" value="WESTERN VISAYAS"></div>
+  <div class="form-group"><label>Region</label><input type="text" id="regRegion" value="Negros Island Region"></div>
   <div class="form-group"><label>Income Class</label><select id="regIncomeClass"><option>1ST</option><option>2ND</option><option>3RD</option><option>4TH</option><option>5TH</option><option>6TH</option></select></div>
   <div class="form-group"><label>Mayor</label><input type="text" id="regMayor"></div>
   <div class="form-group"><label>Vice Mayor</label><input type="text" id="regViceMayor"></div>
@@ -860,7 +860,7 @@ footer {
             id: record["Record ID"] || Date.now() + Math.random() * 1000,
             municipality: record["LGU Name"] || "",
             province: record["Province"] || "",
-            region: record["Region"] || "WESTERN VISAYAS",
+            region: record["Region"] || "Negros Island Region",
             incomeClass: record["Income Class"] || "4TH",
             mayor: record["Mayor"] || "",
             viceMayor: record["Vice Mayor"] || "",
@@ -896,7 +896,7 @@ footer {
           "Timestamp": new Date().toISOString(),
           "LGU Name": lguData.municipality || "",
           "Province": lguData.province || "",
-          "Region": lguData.region || "WESTERN VISAYAS",
+          "Region": lguData.region || "Negros Island Region",
           "LGU Type": "Municipality",
           "Income Class": lguData.incomeClass || "4TH",
           "Mayor": lguData.mayor || "",
@@ -957,7 +957,7 @@ footer {
           "Timestamp": new Date().toISOString(),
           "LGU Name": lguData.municipality || "",
           "Province": lguData.province || "",
-          "Region": lguData.region || "WESTERN VISAYAS",
+          "Region": lguData.region || "Negros Island Region",
           "LGU Type": "Municipality",
           "Income Class": lguData.incomeClass || "4TH",
           "Mayor": lguData.mayor || "",
@@ -1042,7 +1042,7 @@ footer {
         id: 200, 
         municipality: "ALTAVAS", 
         province: "AKLAN", 
-        region: "WESTERN VISAYAS", 
+        region: "Negros Island Region", 
         incomeClass: "4TH", 
         mayor: "DENNY B. REFOL, SR.", 
         viceMayor: "JOSEPH JECON L. FLORES", 
@@ -1313,7 +1313,7 @@ footer {
         id: Date.now(), 
         municipality: mun, 
         province: prov, 
-        region: document.getElementById("regRegion").value || "WESTERN VISAYAS", 
+        region: document.getElementById("regRegion").value || "Negros Island Region", 
         incomeClass: document.getElementById("regIncomeClass").value || "4TH", 
         mayor: document.getElementById("regMayor").value || "", 
         viceMayor: document.getElementById("regViceMayor").value || "", 
@@ -1349,7 +1349,7 @@ footer {
           renderLGUList();
           closeModal("lguModal");
           document.getElementById("lguRegForm").reset();
-          document.getElementById("regRegion").value = "WESTERN VISAYAS";
+          document.getElementById("regRegion").value = "Negros Island Region";
           showToastMessage(`✅ LGU ${mun}, ${prov} registered successfully to Google Sheets!`);
         } else {
           showToastMessage(`❌ Error saving to Google Sheets: ${result.error || "Unknown error"}`, "error");
@@ -1359,7 +1359,7 @@ footer {
           renderLGUList();
           closeModal("lguModal");
           document.getElementById("lguRegForm").reset();
-          document.getElementById("regRegion").value = "WESTERN VISAYAS";
+          document.getElementById("regRegion").value = "Negros Island Region";
           showToastMessage(`⚠️ LGU ${mun}, ${prov} saved locally only. Will sync to Google Sheets later.`, "info");
         }
       } catch (error) {
