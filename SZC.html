@@ -2316,12 +2316,7 @@ th:hover .sort-icon {
                                 <div class="form-grid">
                                     <div class="form-group">
                                         <label>City/Municipality</label
-                                        ><input
-                                            type="text"
-                                            id="city"
-                                            class="form-control"
-                                            onchange="checkIloiloCityConditional()"
-                                        />
+                                        ><input type="text" id="city" class="form-control" onchange="checkBacolodCityConditional()" />
                                     </div>
                                     <div class="form-group">
                                         <label>Province</label
@@ -2340,7 +2335,7 @@ th:hover .sort-icon {
                                         ><input type="date" id="approvalDate" class="form-control" readonly />
                                     </div>
                                 </div>
-                                <div id="iloiloConditionalFields" style="display: none; margin-top: 1rem">
+                                <div id="i<div id="bacolodConditionalFields" style="display: none; margin-top: 1rem">loiloConditionalFields" style="display: none; margin-top: 1rem">
     <div class="form-group">
         <label>Purpose</label>
         <select id="purpose" class="form-control" onchange="purposeChanged()">
@@ -3956,24 +3951,83 @@ async function fetchClupRecords() {
     lguSelect.disabled = false;
     console.log("LGU dropdown populated with", uniqueLGUs.size, "options");
 }
-        function fillFromCLUP() {
+       function fillFromCLUP() {
     let sel = document.getElementById("lguSelect");
     let opt = sel.options[sel.selectedIndex];
     if (!opt?.dataset?.record) return;
-    
     let plan = JSON.parse(opt.dataset.record);
-    
-    console.log("Selected CLUP Record:", JSON.stringify(plan));
+
+    console.log("Full CLUP Record:", plan);
     console.log("All keys in plan:", Object.keys(plan));
 
-    // Helper function to get value from multiple possible field names
-    function getValue(record, possibleKeys, defaultValue = "") {
-        if (!record) return defaultValue;
-        for (let key of possibleKeys) {
-            if (record[key] !== undefined && record[key] !== null && record[key] !== "") {
-                return record[key];
+    document.getElementById("city").value = plan.LGU || plan.lgu || "";
+    document.getElementById("province").value = plan.Province || plan.province || "";
+    document.getElementById("approvedBy").value = plan.Approved_By || plan.approved_by || "Sangguniang Panlalawigan";
+    document.getElementById("circularNo").value = plan.Latest_Plan_Res || plan.latest_plan_res || "";
+
+    // Date parsing logic
+    let appDate = "";
+    const possibleDateFields = [
+        "Latest_Date_of_Approval",
+        "approvalDate",
+        "Approval_Date",
+        "Date_of_Approval",
+        "date_approved",
+        "approved_date",
+        "ApprovalDate",
+        "DateApproved",
+        "latest_date_of_approval",
+    ];
+
+    for (let field of possibleDateFields) {
+        if (plan[field] && plan[field] !== "") {
+            appDate = plan[field];
+            console.log(`Found date in field '${field}': ${appDate}`);
+            break;
+        }
+    }
+
+    if (!appDate) {
+        for (let key in plan) {
+            if (key.toLowerCase().includes("date") && key.toLowerCase().includes("approv")) {
+                if (plan[key] && plan[key] !== "") {
+                    appDate = plan[key];
+                    console.log(`Found date in case-insensitive field '${key}': ${appDate}`);
+                    break;
+                }
             }
         }
+    }
+
+    if (appDate) {
+        let formattedDate = appDate;
+        if (appDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            formattedDate = appDate;
+        } else {
+            try {
+                let d = new Date(appDate);
+                if (!isNaN(d.getTime())) {
+                    let year = d.getFullYear();
+                    let month = String(d.getMonth() + 1).padStart(2, "0");
+                    let day = String(d.getDate()).padStart(2, "0");
+                    formattedDate = `${year}-${month}-${day}`;
+                }
+            } catch (e) {
+                console.warn("Could not parse date:", appDate);
+            }
+        }
+        document.getElementById("approvalDate").value = formattedDate;
+        console.log("Set approvalDate to:", formattedDate);
+    } else {
+        console.warn("No approval date found in CLUP record");
+        document.getElementById("approvalDate").value = "";
+    }
+
+    console.log("Final approvalDate value:", document.getElementById("approvalDate").value);
+
+    // ✅ UPDATED: Check for Bacolod City instead of Iloilo City
+    checkBacolodCityConditional();
+}
         // Try case-insensitive search
         for (let key of Object.keys(record)) {
             for (let searchKey of possibleKeys) {
@@ -4061,14 +4115,14 @@ async function fetchClupRecords() {
     console.log("Final values - City:", lguName, "Province:", provinceName);
     console.log("Approved By:", approvedByName, "Resolution:", resolutionNo);
     
-    checkIloiloCityConditional();
+    checkBacolodCityConditional();
 }
-        function checkIloiloCityConditional() {
+        function checkBacolodCityConditional() {
     let city = document.getElementById("city").value.toLowerCase();
-    let isIloiloCity = city === "iloilo city" || city.includes("iloilo city");
-    let conditionalDiv = document.getElementById("iloiloConditionalFields");
+    let isBacolodCity = city === "bacolod city" || city.includes("bacolod city");
+    let conditionalDiv = document.getElementById("bacolodConditionalFields");
     
-    if (isIloiloCity) {
+    if (isBacolodCity) {
         conditionalDiv.style.display = "block";
         // Reset purpose and land class when showing
         document.getElementById("purpose").value = "";
@@ -4734,7 +4788,7 @@ async function fetchClupRecords() {
             else document.getElementById("landHoldingsContainer").appendChild(createLandHoldingRow("", "", "", "0", ""));
             recalcTotalArea();
             document.getElementById("parcels").value = document.querySelectorAll(".land-holding-row").length;
-            checkIloiloCityConditional();
+            checkBacolodCityConditional();
             if (rec.purpose) {
                 document.getElementById("purpose").value = rec.purpose;
                 purposeChanged();
@@ -4747,7 +4801,7 @@ async function fetchClupRecords() {
             document.getElementById("landHoldingsContainer").appendChild(createLandHoldingRow("", "", "", "0", ""));
             refreshCertNumber();
             currentEditingId = null;
-            document.getElementById("iloiloConditionalFields").style.display = "none";
+            document.getElementById("bacolodConditionalFields").style.display = "none";
             document.getElementById("parcels").value = 1;
             recalcTotalArea();
         }
@@ -4964,12 +5018,12 @@ async function fetchClupRecords() {
     const isCity = city.toLowerCase().includes("city");
     const lguTerm = isCity ? "city" : "municipality";
 
-    const isIloiloCity = city.toLowerCase().includes("iloilo city");
-    let extraParagraph = "";
-    if (isIloiloCity && rec.purpose === "Conversion") {
-        const landClassText = rec.landClass || "Agricultural";
-        extraParagraph = `<p style="margin-top:0.1cm; margin-left:0.5cm; text-indent:1.5cm; font-size:12pt;">THIS IS TO CERTIFY that same tract of land was within a zone classified as <strong>${escapeHtml(landClassText)}</strong> per the <strong>Comprehensive Land Use Plan/Zoning Ordinance of ${escapeHtml(city)}</strong>, that was approved on <strong>September 23, 1980</strong>, via <strong>NCC PLAN</strong> by then <strong>Human Settlements Regulatory Commission (HSRC)</strong>, now DHSUD.</p>`;
-    }
+    const isBacolodCity = city.toLowerCase().includes("bacolod city");
+let extraParagraph = "";
+if (isBacolodCity && rec.purpose === "Conversion") {
+    const landClassText = rec.landClass || "Agricultural";
+    extraParagraph = `<p style="margin-top:0.1cm; margin-left:0.5cm; text-indent:1.5cm; font-size:12pt;">THIS IS TO CERTIFY that same tract of land was within a zone classified as <strong>${escapeHtml(landClassText)}</strong> per the <strong>Comprehensive Land Use Plan/Zoning Ordinance of ${escapeHtml(city)}</strong>, that was approved on <strong>September 23, 1980</strong>, via <strong>NCC PLAN</strong> by then <strong>Human Settlements Regulatory Commission (HSRC)</strong>, now DHSUD.</p>`;
+}
 
     const statusHtml = `
             <!-- OPTION 1: WITH APPROVED CLUP/ZO -->
