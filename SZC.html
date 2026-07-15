@@ -3792,38 +3792,62 @@ function confirmSavePoint() {
                 showToast("Offline mode");
             }
         }
-        async function fetchClupRecords() {
-            try {
-                const resp = await fetch(`${BACKEND_URL}?action=get&data_type=clup&_=${Date.now()}`);
-                const data = await resp.json();
-                
-                // Handle different response formats
-                if (Array.isArray(data)) {
-                    clupRecords = data;
-                } else if (data.data && Array.isArray(data.data)) {
-                    clupRecords = data.data;
-                } else if (data.records && Array.isArray(data.records)) {
-                    clupRecords = data.records;
-                } else {
-                    clupRecords = [];
-                }
-                
-                console.log("CLUP records loaded:", clupRecords.length);
-                localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
-                populateProvinces();
-            } catch (e) {
-                console.error("Error fetching CLUP records:", e);
-                // Try to load from localStorage
-                try {
-                    const stored = localStorage.getItem("clupRecords");
-                    clupRecords = stored ? JSON.parse(stored) : [];
-                    console.log("Loaded from localStorage:", clupRecords.length);
-                } catch (e2) {
-                    clupRecords = [];
-                }
-                populateProvinces();
-            }
+       // Add this debug function to check what's being returned
+async function fetchClupRecords() {
+    try {
+        console.log("Fetching CLUP records...");
+        const resp = await fetch(`${BACKEND_URL}?action=get&data_type=clup&_=${Date.now()}`);
+        const data = await resp.json();
+        
+        // Log the raw response for debugging
+        console.log("Raw CLUP response:", JSON.stringify(data));
+        
+        // Handle different response formats
+        let records = [];
+        
+        if (Array.isArray(data)) {
+            records = data;
+        } else if (data.data && Array.isArray(data.data)) {
+            records = data.data;
+        } else if (data.records && Array.isArray(data.records)) {
+            records = data.records;
+        } else if (data.success && data.data) {
+            records = data.data;
+        } else {
+            console.warn("Unexpected CLUP data format:", data);
+            records = [];
         }
+        
+        console.log("Processed CLUP records:", records.length, "records");
+        
+        // Log first record to see its structure
+        if (records.length > 0) {
+            console.log("First CLUP record structure:", JSON.stringify(records[0]));
+            console.log("All keys in first record:", Object.keys(records[0]));
+        }
+        
+        clupRecords = records;
+        localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
+        populateProvinces();
+        
+        showToast(`Loaded ${clupRecords.length} CLUP records`);
+        return records;
+        
+    } catch (e) {
+        console.error("Error fetching CLUP records:", e);
+        // Try to load from localStorage
+        try {
+            const stored = localStorage.getItem("clupRecords");
+            clupRecords = stored ? JSON.parse(stored) : [];
+            console.log("Loaded from localStorage:", clupRecords.length);
+        } catch (e2) {
+            clupRecords = [];
+        }
+        populateProvinces();
+        showToast("Offline mode - using cached CLUP data");
+        return clupRecords;
+    }
+}
 
         function populateProvinces() {
             let select = document.getElementById("provinceSelect");
@@ -3860,142 +3884,185 @@ function confirmSavePoint() {
             }
         }
 
-        function filterLguByProvince() {
-            let provSelect = document.getElementById("provinceSelect");
-            let prov = provSelect.value;
-            let lguSelect = document.getElementById("lguSelect");
-            
-            lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
-            lguSelect.disabled = true;
-            
-            if (!prov) return;
-            
-            console.log("Filtering LGUs for province:", prov);
-            console.log("Available CLUP records:", clupRecords.length);
-            
-            // Filter records by province (case-insensitive)
-            let filtered = clupRecords.filter(record => {
-                const recordProv = (record.Province || record.province || "").toLowerCase();
-                return recordProv === prov.toLowerCase();
-            });
-            
-            console.log("Filtered records:", filtered.length);
-            
-            // Use a Map to get unique LGUs
-            let uniqueLGUs = new Map();
-            filtered.forEach(record => {
-                const lguName = record.LGU || record.lgu || record["LGU Name"] || record.lgu_name;
-                if (lguName && !uniqueLGUs.has(lguName)) {
-                    uniqueLGUs.set(lguName, record);
-                }
-            });
-            
-            console.log("Unique LGUs found:", uniqueLGUs.size);
-            
-            if (uniqueLGUs.size === 0) {
-                const opt = document.createElement("option");
-                opt.value = "";
-                opt.textContent = "No LGUs found for this province";
-                opt.disabled = true;
-                lguSelect.appendChild(opt);
-                lguSelect.disabled = true;
-                return;
-            }
-            
-            // Add LGUs to dropdown
-            uniqueLGUs.forEach((record, lguName) => {
-                const opt = document.createElement("option");
-                opt.value = lguName;
-                opt.textContent = lguName;
-                opt.dataset.record = JSON.stringify(record);
-                lguSelect.appendChild(opt);
-            });
-            
-            lguSelect.disabled = false;
+       function filterLguByProvince() {
+    let provSelect = document.getElementById("provinceSelect");
+    let prov = provSelect.value;
+    let lguSelect = document.getElementById("lguSelect");
+    
+    lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
+    lguSelect.disabled = true;
+    
+    if (!prov) {
+        console.log("No province selected");
+        return;
+    }
+    
+    console.log("Filtering LGUs for province:", prov);
+    console.log("Available CLUP records:", clupRecords.length);
+    
+    // Filter records by province (case-insensitive)
+    let filtered = clupRecords.filter(record => {
+        // Try multiple field names for province
+        const recordProv = (record.Province || record.province || record.Prov || record.prov || "").toLowerCase();
+        return recordProv === prov.toLowerCase();
+    });
+    
+    console.log("Filtered records:", filtered.length);
+    
+    if (filtered.length === 0) {
+        console.warn("No LGUs found for province:", prov);
+        // Show a message in the dropdown
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No LGUs found for this province";
+        opt.disabled = true;
+        lguSelect.appendChild(opt);
+        lguSelect.disabled = true;
+        return;
+    }
+    
+    // Use a Map to get unique LGUs
+    let uniqueLGUs = new Map();
+    filtered.forEach(record => {
+        // Try multiple field names for LGU name
+        const lguName = record.LGU || record["LGU Name"] || record.lgu || record.lgu_name || record.Name || record.name;
+        if (lguName && !uniqueLGUs.has(lguName)) {
+            uniqueLGUs.set(lguName, record);
         }
-
+    });
+    
+    console.log("Unique LGUs found:", uniqueLGUs.size);
+    
+    if (uniqueLGUs.size === 0) {
+        const opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "No LGUs found in records";
+        opt.disabled = true;
+        lguSelect.appendChild(opt);
+        lguSelect.disabled = true;
+        return;
+    }
+    
+    // Add LGUs to dropdown
+    uniqueLGUs.forEach((record, lguName) => {
+        const opt = document.createElement("option");
+        opt.value = lguName;
+        opt.textContent = lguName;
+        // Store the entire record
+        opt.dataset.record = JSON.stringify(record);
+        lguSelect.appendChild(opt);
+    });
+    
+    lguSelect.disabled = false;
+    console.log("LGU dropdown populated with", uniqueLGUs.size, "options");
+}
         function fillFromCLUP() {
-            let sel = document.getElementById("lguSelect");
-            let opt = sel.options[sel.selectedIndex];
-            if (!opt?.dataset?.record) return;
-            let plan = JSON.parse(opt.dataset.record);
+    let sel = document.getElementById("lguSelect");
+    let opt = sel.options[sel.selectedIndex];
+    if (!opt?.dataset?.record) return;
+    
+    let plan = JSON.parse(opt.dataset.record);
+    
+    console.log("Selected CLUP Record:", JSON.stringify(plan));
+    console.log("All keys in plan:", Object.keys(plan));
 
-            console.log("Full CLUP Record:", plan);
-            console.log("All keys in plan:", Object.keys(plan));
+    // Helper function to get value from multiple possible field names
+    function getValue(record, possibleKeys, defaultValue = "") {
+        if (!record) return defaultValue;
+        for (let key of possibleKeys) {
+            if (record[key] !== undefined && record[key] !== null && record[key] !== "") {
+                return record[key];
+            }
+        }
+        // Try case-insensitive search
+        for (let key of Object.keys(record)) {
+            for (let searchKey of possibleKeys) {
+                if (key.toLowerCase() === searchKey.toLowerCase()) {
+                    if (record[key] !== undefined && record[key] !== null && record[key] !== "") {
+                        return record[key];
+                    }
+                }
+            }
+        }
+        return defaultValue;
+    }
 
-            document.getElementById("city").value = plan.LGU || plan.lgu || "";
-            document.getElementById("province").value = plan.Province || plan.province || "";
-            document.getElementById("approvedBy").value =
-                plan.Approved_By || plan.approved_by || "Sangguniang Panlalawigan";
-            document.getElementById("circularNo").value = plan.Latest_Plan_Res || plan.latest_plan_res || "";
-
-            // IMPROVED DATE PARSING - Try multiple possible field names
-            let appDate = "";
-
-            // Check all possible date field names from the CLUP record
-            const possibleDateFields = [
-                "Latest_Date_of_Approval",
-                "approvalDate",
-                "Approval_Date",
-                "Date_of_Approval",
-                "date_approved",
-                "approved_date",
-                "ApprovalDate",
-                "DateApproved",
-                "latest_date_of_approval",
-            ];
-
-            for (let field of possibleDateFields) {
-                if (plan[field] && plan[field] !== "") {
-                    appDate = plan[field];
-                    console.log(`Found date in field '${field}': ${appDate}`);
+    // Get values with multiple possible field names
+    const lguName = getValue(plan, ["LGU", "LGU Name", "lgu", "lgu_name", "Name", "city"], "");
+    const provinceName = getValue(plan, ["Province", "province", "Prov", "prov"], "");
+    const approvedByName = getValue(plan, ["Approved_By", "approved_by", "ApprovedBy", "Approved", "Sangguniang Panlalawigan"], "Sangguniang Panlalawigan");
+    const resolutionNo = getValue(plan, ["Latest_Plan_Res", "latest_plan_res", "Resolution", "Circular_No", "circular_no", "Resolution_No"], "");
+    
+    // Try multiple date formats
+    let approvalDate = "";
+    const dateFields = [
+        "Latest_Date_of_Approval", 
+        "approvalDate", 
+        "Approval_Date", 
+        "Date_of_Approval",
+        "date_approved",
+        "approved_date",
+        "ApprovalDate",
+        "DateApproved",
+        "latest_date_of_approval"
+    ];
+    
+    for (let field of dateFields) {
+        if (plan[field] && plan[field] !== "") {
+            approvalDate = plan[field];
+            console.log(`Found date in field '${field}': ${approvalDate}`);
+            break;
+        }
+    }
+    
+    // If no date found, try case-insensitive
+    if (!approvalDate) {
+        for (let key in plan) {
+            if (key.toLowerCase().includes("date") && key.toLowerCase().includes("approv")) {
+                if (plan[key] && plan[key] !== "") {
+                    approvalDate = plan[key];
+                    console.log(`Found date in case-insensitive field '${key}': ${approvalDate}`);
                     break;
                 }
             }
-
-            // If still empty, try case-insensitive search
-            if (!appDate) {
-                for (let key in plan) {
-                    if (key.toLowerCase().includes("date") && key.toLowerCase().includes("approv")) {
-                        if (plan[key] && plan[key] !== "") {
-                            appDate = plan[key];
-                            console.log(`Found date in case-insensitive field '${key}': ${appDate}`);
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // Format the date if found
-            if (appDate) {
-                // Ensure date is in YYYY-MM-DD format for input[type="date"]
-                let formattedDate = appDate;
-                if (appDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    formattedDate = appDate;
-                } else {
-                    try {
-                        let d = new Date(appDate);
-                        if (!isNaN(d.getTime())) {
-                            let year = d.getFullYear();
-                            let month = String(d.getMonth() + 1).padStart(2, "0");
-                            let day = String(d.getDate()).padStart(2, "0");
-                            formattedDate = `${year}-${month}-${day}`;
-                        }
-                    } catch (e) {
-                        console.warn("Could not parse date:", appDate);
-                    }
-                }
-                document.getElementById("approvalDate").value = formattedDate;
-                console.log("Set approvalDate to:", formattedDate);
-            } else {
-                console.warn("No approval date found in CLUP record");
-                document.getElementById("approvalDate").value = "";
-            }
-
-            console.log("Final approvalDate value:", document.getElementById("approvalDate").value);
-
-            checkIloiloCityConditional();
         }
+    }
+
+    // Set the form fields
+    document.getElementById("city").value = lguName;
+    document.getElementById("province").value = provinceName;
+    document.getElementById("approvedBy").value = approvedByName;
+    document.getElementById("circularNo").value = resolutionNo;
+
+    // Format and set the date
+    if (approvalDate) {
+        let formattedDate = approvalDate;
+        // If it's a date string, try to parse it
+        if (!approvalDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            try {
+                let d = new Date(approvalDate);
+                if (!isNaN(d.getTime())) {
+                    let year = d.getFullYear();
+                    let month = String(d.getMonth() + 1).padStart(2, "0");
+                    let day = String(d.getDate()).padStart(2, "0");
+                    formattedDate = `${year}-${month}-${day}`;
+                }
+            } catch (e) {
+                console.warn("Could not parse date:", approvalDate);
+            }
+        }
+        document.getElementById("approvalDate").value = formattedDate;
+        console.log("Set approvalDate to:", formattedDate);
+    } else {
+        console.warn("No approval date found in CLUP record");
+        document.getElementById("approvalDate").value = "";
+    }
+
+    console.log("Final values - City:", lguName, "Province:", provinceName);
+    console.log("Approved By:", approvedByName, "Resolution:", resolutionNo);
+    
+    checkIloiloCityConditional();
+}
         function checkIloiloCityConditional() {
     let city = document.getElementById("city").value.toLowerCase();
     let isIloiloCity = city === "iloilo city" || city.includes("iloilo city");
