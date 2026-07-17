@@ -7,9 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
-  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css" />
   <style>
    * {
@@ -17,6 +14,133 @@
     padding: 0;
     box-sizing: border-box;
 }
+     #mapPopupModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+    }
+    #mapPopupModal.active {
+      display: flex !important;
+    }
+    .map-popup-content {
+      background: white;
+      border-radius: 28px;
+      width: 95%;
+      max-width: 1400px;
+      height: 92%;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      z-index: 10000;
+      position: relative;
+    }
+    #popupMap {
+      height: 100%;
+      width: 100%;
+      border-radius: 16px;
+      background: #eef2f0;
+      min-height: 550px;
+      flex: 1;
+    }
+    .leaflet-container {
+      height: 100% !important;
+      width: 100% !important;
+    }
+    .leaflet-control {
+      z-index: 800 !important;
+    }
+    #mapPopupModal .btn {
+      padding: 0.6rem 1.4rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+      z-index: 10000;
+      position: relative;
+    }
+    #mapPopupModal .btn-primary {
+      background: #2563eb;
+      color: white;
+    }
+    #mapPopupModal .btn-primary:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+    #mapPopupModal .btn-secondary {
+      background: #e2e8f0;
+      color: #1e293b;
+    }
+    #mapPopupModal .btn-secondary:hover {
+      background: #cbd5e1;
+    }
+    #mapPopupModal .btn-danger {
+      background: #dc3545;
+      color: white;
+    }
+    #mapPopupModal .btn-danger:hover {
+      background: #c82333;
+    }
+    .map-popup-footer {
+      padding: 15px;
+      text-align: right;
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      z-index: 10001;
+      position: relative;
+    }
+    .map-popup-body {
+      padding: 15px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .map-container {
+      flex: 3;
+      min-width: 500px;
+      position: relative;
+    }
+    .survey-sidebar {
+      flex: 1;
+      min-width: 380px;
+      max-height: 70vh;
+      overflow-y: auto;
+      background: #f9fbfd;
+      border-radius: 20px;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+    }
+    .map-popup-header {
+      background: #1e3a8a;
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10001;
+      position: relative;
+    }
+    .map-popup-header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+    }
 body {
     font-family: "Inter", sans-serif;
     background: #f4f7fc;
@@ -3376,7 +3500,9 @@ label[for="lguSelect"] {
             </div>
         </div>
     </main>
-
+ <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
    <script>
     // ========== CONFIGURATION ==========
     // IMPORTANT: Replace this with your actual Google Apps Script URL
@@ -6016,95 +6142,570 @@ if (isBacolodCity && isDARExemption) {
         XLSX.writeFile(wb, `SZC_Released_${new Date().toISOString().slice(0, 10)}.xlsx`);
     }
 
-    // ========== MAP FUNCTIONS (SIMPLIFIED) ==========
+   // ========== MAP FUNCTIONS - FIXED ==========
 
     function openSurveyMapPopup() {
-        let modal = document.getElementById("mapPopupModal");
-        modal.classList.add("active");
-        setTimeout(() => {
-            if (!mapInitialized) {
-                popupMap = L.map("popupMap", {
-                    center: [10.802, 123.426],
-                    zoom: 13,
-                    zoomControl: true,
-                    scrollWheelZoom: true,
-                    doubleClickZoom: true
-                });
-                
-                currentBaseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-                    maxZoom: 18,
-                    minZoom: 6
-                }).addTo(popupMap);
-                
-                popupMap.invalidateSize();
-                mapInitialized = true;
-                
-                if (!popupMap.zoomControl) {
-                    L.control.zoom({ position: 'topright' }).addTo(popupMap);
-                }
-            } else {
-                popupMap.invalidateSize();
+      console.log("🗺️ Opening map popup...");
+      let modal = document.getElementById("mapPopupModal");
+      
+      if (!modal) {
+        console.error("❌ Map popup modal not found!");
+        showToast("Error: Map modal not found", "error");
+        return;
+      }
+      
+      // Show the modal first
+      modal.classList.add("active");
+      modal.style.display = "flex";
+      
+      // Wait for the modal to render
+      setTimeout(function() {
+        try {
+          let mapContainer = document.getElementById("popupMap");
+          
+          if (!mapContainer) {
+            console.error("❌ Map container not found!");
+            showToast("Error: Map container not found", "error");
+            return;
+          }
+          
+          // Make sure container is visible
+          mapContainer.style.display = "block";
+          mapContainer.style.height = "100%";
+          mapContainer.style.width = "100%";
+          mapContainer.style.minHeight = "550px";
+          
+          // Check if map is already initialized
+          if (!mapInitialized || !popupMap) {
+            console.log("🗺️ Initializing new map...");
+            
+            // Create the map
+            popupMap = L.map("popupMap", {
+              center: [10.802, 123.426],
+              zoom: 13,
+              zoomControl: true,
+              scrollWheelZoom: true,
+              doubleClickZoom: true
+            });
+            
+            // Set default street view
+            if (currentBaseLayer) {
+              popupMap.removeLayer(currentBaseLayer);
             }
-        }, 200);
+            currentBaseLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+              maxZoom: 18,
+              minZoom: 6
+            }).addTo(popupMap);
+            
+            // Add zoom control if missing
+            if (!popupMap.zoomControl) {
+              L.control.zoom({ position: 'topright' }).addTo(popupMap);
+            }
+            
+            // Add scale control
+            L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(popupMap);
+            
+            mapInitialized = true;
+            console.log("✅ Map initialized successfully");
+            
+            // Initialize measurement tools
+            initMeasurementTools();
+            
+            // Initialize save point toggle
+            const savePointToggleBtn = document.getElementById("toggleSavePointBtn");
+            if (savePointToggleBtn) {
+              // Remove existing listeners by cloning
+              const newBtn = savePointToggleBtn.cloneNode(true);
+              savePointToggleBtn.parentNode.replaceChild(newBtn, savePointToggleBtn);
+              
+              newBtn.onclick = function() {
+                if (measuringToolActive) {
+                  if (currentMeasurementMode === 'distance') {
+                    document.getElementById("startMeasureLineBtn").click();
+                  } else if (currentMeasurementMode === 'area') {
+                    document.getElementById("startMeasureAreaBtn").click();
+                  }
+                }
+                toggleSavePointMode(!savePointModeActive);
+              };
+            }
+            
+            // Initialize save point mode as OFF by default
+            toggleSavePointMode(false);
+            
+            // Initialize search
+            initGeocoder();
+            setupSearchEnterKey();
+            
+          } else {
+            console.log("🗺️ Map already initialized, invalidating size...");
+            setTimeout(function() {
+              if (popupMap) {
+                popupMap.invalidateSize();
+              }
+            }, 300);
+          }
+          
+          // Load saved points if any
+          if (savedPoints && savedPoints.length > 0) {
+            loadSavedPoints();
+          }
+          
+          // Refresh survey UI
+          refreshSurveyUI();
+          
+          showToast("🗺️ Map tool opened successfully", "success");
+          
+        } catch (error) {
+          console.error("❌ Error opening map:", error);
+          showToast("Error opening map: " + error.message, "error");
+        }
+      }, 500);
     }
 
     function closeMapPopup() {
-        document.getElementById("mapPopupModal").classList.remove("active");
+      console.log("🗺️ Closing map popup...");
+      let modal = document.getElementById("mapPopupModal");
+      if (modal) {
+        modal.classList.remove("active");
+        modal.style.display = "none";
+      }
+      // Don't destroy the map, just hide it
     }
 
     function saveCoordinatesFromPopup() {
-        let lat = document.getElementById("popupLatitude")?.value,
-            lng = document.getElementById("popupLongitude")?.value;
-        if (lat && lng) {
-            document.getElementById("latitude").value = lat;
-            document.getElementById("longitude").value = lng;
-        }
+      console.log("💾 Saving coordinates from popup...");
+      let lat = document.getElementById("popupLatitude")?.value;
+      let lng = document.getElementById("popupLongitude")?.value;
+      
+      if (lat && lng) {
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lng;
         closeMapPopup();
-        showToast("Coordinates saved to form");
+        showToast("✅ Coordinates saved to form: " + lat + ", " + lng, "success");
+      } else {
+        showToast("⚠️ No coordinates selected. Click on the map first.", "error");
+      }
     }
 
     function clearSelectedCoords() {
-        document.getElementById("popupLatitude").value = "";
-        document.getElementById("popupLongitude").value = "";
-        if (mapMarker && popupMap) popupMap.removeLayer(mapMarker);
+      console.log("🗑️ Clearing selected coordinates...");
+      document.getElementById("popupLatitude").value = "";
+      document.getElementById("popupLongitude").value = "";
+      
+      if (mapMarker && popupMap) {
+        popupMap.removeLayer(mapMarker);
         mapMarker = null;
+      }
+      
+      if (window.searchMarker && popupMap) {
+        popupMap.removeLayer(window.searchMarker);
+        window.searchMarker = null;
+      }
+      
+      showToast("🗑️ Coordinates cleared", "info");
     }
 
     function goToCoordinates() {
-        const latInput = document.getElementById('popupLatitude');
-        const lngInput = document.getElementById('popupLongitude');
+      console.log("🔍 Going to coordinates...");
+      const latInput = document.getElementById('popupLatitude');
+      const lngInput = document.getElementById('popupLongitude');
+      
+      if (!latInput || !lngInput) {
+        showToast("Coordinate inputs not found", "error");
+        return;
+      }
+      
+      let lat = parseFloat(latInput.value);
+      let lng = parseFloat(lngInput.value);
+      
+      if (isNaN(lat) || isNaN(lng)) {
+        showToast("Please enter valid latitude and longitude numbers", "error");
+        return;
+      }
+      
+      if (lat < -90 || lat > 90) {
+        showToast("Latitude must be between -90 and 90", "error");
+        return;
+      }
+      if (lng < -180 || lng > 180) {
+        showToast("Longitude must be between -180 and 180", "error");
+        return;
+      }
+      
+      if (popupMap) {
+        popupMap.setView([lat, lng], 16);
+        showToast(`📍 Moving to: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, "success");
         
-        if (!latInput || !lngInput) {
-            showToast("Coordinate inputs not found", "error");
-            return;
+        // Add temporary marker
+        if (window.searchMarker) {
+          popupMap.removeLayer(window.searchMarker);
         }
         
-        let lat = parseFloat(latInput.value);
-        let lng = parseFloat(lngInput.value);
+        window.searchMarker = L.marker([lat, lng]).addTo(popupMap)
+          .bindPopup(`📍 <strong>Selected Location</strong><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+          .openPopup();
         
-        if (isNaN(lat) || isNaN(lng)) {
-            showToast("Please enter valid latitude and longitude numbers", "error");
-            return;
+        setTimeout(() => {
+          if (window.searchMarker && popupMap) {
+            popupMap.closePopup();
+          }
+        }, 5000);
+      } else {
+        showToast("Map not loaded yet", "error");
+      }
+    }
+
+    function initMeasurementTools() {
+      if (!popupMap) {
+        console.warn("⚠️ Map not initialized, cannot setup measurement tools");
+        return;
+      }
+      
+      // Remove existing drawn items if any
+      if (drawnItems) {
+        popupMap.removeLayer(drawnItems);
+      }
+      
+      drawnItems = L.featureGroup().addTo(popupMap);
+      
+      const measureLineBtn = document.getElementById("startMeasureLineBtn");
+      const measureAreaBtn = document.getElementById("startMeasureAreaBtn");
+      const clearMeasureBtn = document.getElementById("clearMeasureBtn");
+      
+      // Track active measurement state
+      let activeMeasurementControl = null;
+      
+      // Function to remove draw control
+      function removeDrawControl() {
+        if (activeMeasurementControl) {
+          try {
+            activeMeasurementControl.disable();
+          } catch(e) {
+            // Ignore errors
+          }
+          activeMeasurementControl = null;
         }
+      }
+      
+      // Function to deactivate measurement mode
+      function deactivateMeasurementMode() {
+        measuringToolActive = false;
+        currentMeasurementMode = null;
+        removeDrawControl();
         
-        if (lat < -90 || lat > 90) {
-            showToast("Latitude must be between -90 and 90", "error");
-            return;
+        if (measureLineBtn) {
+          measureLineBtn.classList.remove('measuring-active', 'toggle-active');
+          measureLineBtn.textContent = '📏 Measure Distance';
         }
-        if (lng < -180 || lng > 180) {
-            showToast("Longitude must be between -180 and 180", "error");
-            return;
+        if (measureAreaBtn) {
+          measureAreaBtn.classList.remove('measuring-active', 'toggle-active');
+          measureAreaBtn.textContent = '📐 Measure Area';
         }
         
         if (popupMap) {
-            popupMap.setView([lat, lng], 16);
-            showToast(`📍 Moving to: ${lat.toFixed(6)}, ${lng.toFixed(6)}`, "success");
-        } else {
-            showToast("Map not loaded yet", "error");
+          popupMap.dragging.enable();
+          popupMap.doubleClickZoom.enable();
+          popupMap.scrollWheelZoom.enable();
         }
+        
+        document.getElementById("measureResult").innerHTML = "⚡ Click a button to start measuring";
+      }
+      
+      // Measure Distance button
+      if (measureLineBtn) {
+        // Remove existing listeners by cloning
+        const newBtn = measureLineBtn.cloneNode(true);
+        measureLineBtn.parentNode.replaceChild(newBtn, measureLineBtn);
+        
+        newBtn.onclick = function() {
+          console.log("📏 Measure Distance button clicked");
+          if (currentMeasurementMode === 'distance') {
+            deactivateMeasurementMode();
+            return;
+          }
+          
+          deactivateMeasurementMode();
+          
+          measuringToolActive = true;
+          currentMeasurementMode = 'distance';
+          
+          this.classList.add('measuring-active', 'toggle-active');
+          this.textContent = '📏 Measuring... Click to Stop';
+          document.getElementById("measureResult").innerHTML = "📏 Distance mode ACTIVE - Click on the map to measure. Click button again to turn OFF.";
+          
+          if (savePointModeActive) {
+            toggleSavePointMode(false);
+          }
+          
+          if (popupMap) {
+            popupMap.dragging.disable();
+            popupMap.doubleClickZoom.disable();
+          }
+          
+          try {
+            if (typeof L.Draw !== 'undefined') {
+              activeMeasurementControl = new L.Draw.Polyline(popupMap);
+              activeMeasurementControl.enable();
+            } else {
+              showToast("Error: Drawing tools not loaded", "error");
+              deactivateMeasurementMode();
+              return;
+            }
+          } catch(e) {
+            console.error("Error creating draw control:", e);
+            showToast("Error: Could not start measurement", "error");
+            deactivateMeasurementMode();
+            return;
+          }
+          
+          // Remove any existing listeners
+          popupMap.off("draw:created");
+          
+          popupMap.once("draw:created", function(e) {
+            try {
+              let layer = e.layer;
+              drawnItems.addLayer(layer);
+              let latlngs = layer.getLatLngs();
+              let total = 0;
+              for (let i = 0; i < latlngs.length - 1; i++) {
+                total += latlngs[i].distanceTo(latlngs[i + 1]);
+              }
+              const resultText = total >= 1000 ? `📏 Distance: ${(total / 1000).toFixed(2)} km` : `📏 Distance: ${total.toFixed(1)} m`;
+              document.getElementById("measureResult").innerHTML = resultText;
+              
+              removeDrawControl();
+              if (newBtn) {
+                newBtn.classList.remove('measuring-active', 'toggle-active');
+                newBtn.textContent = '📏 Measure Distance';
+              }
+              measuringToolActive = false;
+              currentMeasurementMode = null;
+              
+              if (popupMap) {
+                popupMap.dragging.enable();
+                popupMap.doubleClickZoom.enable();
+              }
+            } catch(e) {
+              console.error("Error measuring distance:", e);
+              showToast("Error measuring distance", "error");
+              deactivateMeasurementMode();
+            }
+          });
+        };
+      }
+      
+      // Measure Area button
+      if (measureAreaBtn) {
+        // Remove existing listeners by cloning
+        const newBtn = measureAreaBtn.cloneNode(true);
+        measureAreaBtn.parentNode.replaceChild(newBtn, measureAreaBtn);
+        
+        newBtn.onclick = function() {
+          console.log("📐 Measure Area button clicked");
+          if (currentMeasurementMode === 'area') {
+            deactivateMeasurementMode();
+            return;
+          }
+          
+          deactivateMeasurementMode();
+          
+          measuringToolActive = true;
+          currentMeasurementMode = 'area';
+          
+          this.classList.add('measuring-active', 'toggle-active');
+          this.textContent = '📐 Measuring... Click to Stop';
+          document.getElementById("measureResult").innerHTML = "📐 Area mode ACTIVE - Click on the map to measure area. Click button again to turn OFF.";
+          
+          if (savePointModeActive) {
+            toggleSavePointMode(false);
+          }
+          
+          if (popupMap) {
+            popupMap.dragging.disable();
+            popupMap.doubleClickZoom.disable();
+          }
+          
+          try {
+            if (typeof L.Draw !== 'undefined') {
+              activeMeasurementControl = new L.Draw.Polygon(popupMap);
+              activeMeasurementControl.enable();
+            } else {
+              showToast("Error: Drawing tools not loaded", "error");
+              deactivateMeasurementMode();
+              return;
+            }
+          } catch(e) {
+            console.error("Error creating draw control:", e);
+            showToast("Error: Could not start measurement", "error");
+            deactivateMeasurementMode();
+            return;
+          }
+          
+          // Remove any existing listeners
+          popupMap.off("draw:created");
+          
+          popupMap.once("draw:created", function(e) {
+            try {
+              let layer = e.layer;
+              drawnItems.addLayer(layer);
+              let latlngs = layer.getLatLngs()[0];
+              let area = 0;
+              for (let i = 0; i < latlngs.length; i++) {
+                let j = (i + 1) % latlngs.length;
+                area += latlngs[i].lat * latlngs[j].lng;
+                area -= latlngs[j].lat * latlngs[i].lng;
+              }
+              area = Math.abs(area) / 2;
+              const areaSqM = area * 111319.9 * 111319.9;
+              const resultText = areaSqM >= 10000 ? `📐 Area: ${(areaSqM / 10000).toFixed(2)} ha` : `📐 Area: ${areaSqM.toFixed(1)} sq m`;
+              document.getElementById("measureResult").innerHTML = resultText;
+              
+              removeDrawControl();
+              if (newBtn) {
+                newBtn.classList.remove('measuring-active', 'toggle-active');
+                newBtn.textContent = '📐 Measure Area';
+              }
+              measuringToolActive = false;
+              currentMeasurementMode = null;
+              
+              if (popupMap) {
+                popupMap.dragging.enable();
+                popupMap.doubleClickZoom.enable();
+              }
+            } catch(e) {
+              console.error("Error measuring area:", e);
+              showToast("Error measuring area", "error");
+              deactivateMeasurementMode();
+            }
+          });
+        };
+      }
+      
+      // Clear button
+      if (clearMeasureBtn) {
+        // Remove existing listeners by cloning
+        const newBtn = clearMeasureBtn.cloneNode(true);
+        clearMeasureBtn.parentNode.replaceChild(newBtn, clearMeasureBtn);
+        
+        newBtn.onclick = function() {
+          console.log("🗑️ Clear measurements button clicked");
+          if (drawnItems) {
+            drawnItems.clearLayers();
+          }
+          deactivateMeasurementMode();
+          document.getElementById("measureResult").innerHTML = "🗑️ Cleared! Click a button to start measuring.";
+          showToast("🗑️ Measurements cleared", "info");
+        };
+      }
     }
 
+    function toggleSavePointMode(enable) {
+      savePointModeActive = enable;
+      const toggleBtn = document.getElementById("toggleSavePointBtn");
+      const hintText = document.getElementById("savePointHint");
+      
+      if (savePointModeActive) {
+        if (toggleBtn) {
+          toggleBtn.innerHTML = "💾 Save Point Mode: ON ✓";
+          toggleBtn.classList.add("save-point-active");
+        }
+        if (hintText) {
+          hintText.innerHTML = "🔴 ACTIVE - Click anywhere on the map to save a point!";
+          hintText.style.color = "#10b981";
+          hintText.style.fontWeight = "bold";
+        }
+        
+        if (measuringToolActive) {
+          if (currentMeasurementMode === 'distance') {
+            document.getElementById("startMeasureLineBtn").click();
+          } else if (currentMeasurementMode === 'area') {
+            document.getElementById("startMeasureAreaBtn").click();
+          }
+        }
+        
+        if (popupMap && !popupMap.savePointHandler) {
+          popupMap.savePointHandler = popupMap.on("click", function(e) {
+            if (savePointModeActive && !measuringToolActive) {
+              document.getElementById("popupLatitude").value = e.latlng.lat.toFixed(6);
+              document.getElementById("popupLongitude").value = e.latlng.lng.toFixed(6);
+              showSavePointDialog(e.latlng.lat, e.latlng.lng);
+              
+              if (mapMarker) {
+                mapMarker.setLatLng(e.latlng);
+              } else {
+                mapMarker = L.marker(e.latlng).addTo(popupMap);
+              }
+            }
+          });
+        }
+      } else {
+        if (toggleBtn) {
+          toggleBtn.innerHTML = "💾 Save Point Mode: OFF";
+          toggleBtn.classList.remove("save-point-active");
+        }
+        if (hintText) {
+          hintText.innerHTML = "💡 Toggle ON to save points by clicking on the map";
+          hintText.style.color = "#64748b";
+          hintText.style.fontWeight = "normal";
+        }
+        
+        if (popupMap && popupMap.savePointHandler) {
+          popupMap.off("click", popupMap.savePointHandler);
+          popupMap.savePointHandler = null;
+        }
+      }
+    }
+
+    function changeMapView(type) {
+      if (!popupMap) return;
+      
+      // Remove current base layer
+      if (currentBaseLayer) {
+        popupMap.removeLayer(currentBaseLayer);
+      }
+      
+      let url;
+      let attribution;
+      
+      if (type === "satellite") {
+        url = 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}';
+        attribution = 'Imagery &copy; Google Maps';
+      } else if (type === "street") {
+        url = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+      } else if (type === "outdoor") {
+        url = 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png';
+        attribution = '&copy; <a href="https://opentopomap.org">OpenTopoMap</a> contributors';
+      } else {
+        url = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        attribution = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+      }
+      
+      currentBaseLayer = L.tileLayer(url, {
+        attribution: attribution,
+        maxZoom: 20,
+        minZoom: 6,
+        crossOrigin: true
+      }).addTo(popupMap);
+      
+      // Update active button styling
+      const streetBtn = document.getElementById("mapTypeStreet");
+      const satelliteBtn = document.getElementById("mapTypeSatellite");
+      const outdoorBtn = document.getElementById("mapTypeOutdoor");
+      
+      if (streetBtn) streetBtn.classList.remove("active");
+      if (satelliteBtn) satelliteBtn.classList.remove("active");
+      if (outdoorBtn) outdoorBtn.classList.remove("active");
+      
+      if (type === "street" && streetBtn) streetBtn.classList.add("active");
+      if (type === "satellite" && satelliteBtn) satelliteBtn.classList.add("active");
+      if (type === "outdoor" && outdoorBtn) outdoorBtn.classList.add("active");
+      
+      let viewName = type === "satellite" ? "Satellite View" : (type === "outdoor" ? "Terrain View" : "Street View");
+      showToast(`🗺️ Switched to ${viewName}`);
+    }
     // ========== INITIALIZATION ==========
 
     async function init() {
