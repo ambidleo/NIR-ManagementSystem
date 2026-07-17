@@ -4313,11 +4313,17 @@ async function fetchCertifications(forceRefresh = false) {
     }
 }
 
+// ========== CLUP RECORDS FETCHING - NEGROS ISLAND REGION ==========
+
+let clupRecords = [];
+
 async function fetchClupRecords() {
     try {
         console.log("🔄 Fetching CLUP records from server...");
-        const resp = await fetch(`${BACKEND_URL}?action=get&data_type=clup&_=${Date.now()}`);
+        const url = `${BACKEND_URL}?action=get&data_type=clup&_=${Date.now()}`;
+        console.log("📡 Request URL:", url);
         
+        const resp = await fetch(url);
         console.log("📡 Response status:", resp.status);
         
         if (!resp.ok) {
@@ -4325,117 +4331,163 @@ async function fetchClupRecords() {
         }
         
         const data = await resp.json();
-        console.log("📦 CLUP records received:", data);
-        console.log("📦 Data type:", typeof data);
-        console.log("📦 Is array:", Array.isArray(data));
-        console.log("📦 Length:", data.length);
+        console.log("📦 Raw response:", data);
         
-        // Check if data is an array or has a data property
+        // Handle different response formats
         let records = [];
         if (Array.isArray(data)) {
             records = data;
-        } else if (data && data.data && Array.isArray(data.data)) {
+        } else if (data && data.success === true && Array.isArray(data.data)) {
             records = data.data;
-        } else if (data && data.success && Array.isArray(data.data)) {
+        } else if (data && data.data && Array.isArray(data.data)) {
             records = data.data;
         }
         
+        console.log("📋 Processed records:", records.length);
+        
         if (records.length > 0) {
-            clupRecords = records;
-            console.log(`✅ Loaded ${clupRecords.length} CLUP records from server`);
-            console.log("📋 First record:", clupRecords[0]);
-        } else {
-            console.log("⚠️ No CLUP records from server, checking localStorage...");
-            const stored = localStorage.getItem("clupRecords");
-            if (stored) {
-                clupRecords = JSON.parse(stored);
-                console.log(`📁 Loaded ${clupRecords.length} CLUP records from cache`);
-            } else {
-                // Use fallback data with corrected records for Negros Occidental, Negros Oriental, Siquijor
-                console.log("📭 No CLUP records found anywhere, using fallback");
-                clupRecords = [
-                    // Negros Occidental records
-                    { Province: "Negros Occidental", LGU: "Bacolod City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-001", Latest_Date_of_Approval: "2022-01-15" },
-                    { Province: "Negros Occidental", LGU: "Bago City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-045", Latest_Date_of_Approval: "2021-03-20" },
-                    { Province: "Negros Occidental", LGU: "Cadiz City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-123", Latest_Date_of_Approval: "2020-11-10" },
-                    { Province: "Negros Occidental", LGU: "Escalante City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-089", Latest_Date_of_Approval: "2019-07-25" },
-                    { Province: "Negros Occidental", LGU: "Himamaylan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-067", Latest_Date_of_Approval: "2021-05-12" },
-                    { Province: "Negros Occidental", LGU: "Kabankalan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-234", Latest_Date_of_Approval: "2020-12-08" },
-                    { Province: "Negros Occidental", LGU: "La Carlota City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-056", Latest_Date_of_Approval: "2018-09-14" },
-                    { Province: "Negros Occidental", LGU: "Sagay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-178", Latest_Date_of_Approval: "2019-10-30" },
-                    { Province: "Negros Occidental", LGU: "San Carlos City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-012", Latest_Date_of_Approval: "2020-02-18" },
-                    { Province: "Negros Occidental", LGU: "Silay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-156", Latest_Date_of_Approval: "2021-08-22" },
-                    { Province: "Negros Occidental", LGU: "Sipalay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-189", Latest_Date_of_Approval: "2020-10-05" },
-                    { Province: "Negros Occidental", LGU: "Talisay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-234", Latest_Date_of_Approval: "2019-12-15" },
-                    { Province: "Negros Occidental", LGU: "Victorias City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-098", Latest_Date_of_Approval: "2021-06-28" },
-                    // Add more LGUs for Negros Occidental
-                    { Province: "Negros Occidental", LGU: "Binalbagan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-045", Latest_Date_of_Approval: "2020-04-15" },
-                    { Province: "Negros Occidental", LGU: "Hinigaran", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-123", Latest_Date_of_Approval: "2018-08-20" },
-                    { Province: "Negros Occidental", LGU: "Moises Padilla", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-067", Latest_Date_of_Approval: "2019-05-10" },
-                    { Province: "Negros Occidental", LGU: "Pulupandan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-045", Latest_Date_of_Approval: "2021-03-20" },
-                    // Negros Oriental records
-                    { Province: "Negros Oriental", LGU: "Dumaguete City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-015", Latest_Date_of_Approval: "2022-02-10" },
-                    { Province: "Negros Oriental", LGU: "Bayawan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-078", Latest_Date_of_Approval: "2021-06-15" },
-                    { Province: "Negros Oriental", LGU: "Bais City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-156", Latest_Date_of_Approval: "2020-09-22" },
-                    { Province: "Negros Oriental", LGU: "Canlaon City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-123", Latest_Date_of_Approval: "2019-08-14" },
-                    { Province: "Negros Oriental", LGU: "Tanjay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-089", Latest_Date_of_Approval: "2020-07-08" },
-                    // Add more LGUs for Negros Oriental
-                    { Province: "Negros Oriental", LGU: "Amlan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-045", Latest_Date_of_Approval: "2018-04-20" },
-                    { Province: "Negros Oriental", LGU: "Mabinay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-078", Latest_Date_of_Approval: "2019-06-15" },
-                    { Province: "Negros Oriental", LGU: "Siaton", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-134", Latest_Date_of_Approval: "2020-08-25" },
-                    // Siquijor records
-                    { Province: "Siquijor", LGU: "Siquijor", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-034", Latest_Date_of_Approval: "2021-03-12" },
-                    { Province: "Siquijor", LGU: "Larena", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-067", Latest_Date_of_Approval: "2020-05-20" },
-                    { Province: "Siquijor", LGU: "Lazi", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-089", Latest_Date_of_Approval: "2019-07-18" },
-                    { Province: "Siquijor", LGU: "Maria", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-123", Latest_Date_of_Approval: "2020-09-08" },
-                    { Province: "Siquijor", LGU: "San Juan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-156", Latest_Date_of_Approval: "2021-10-22" },
-                    { Province: "Siquijor", LGU: "Enrique Villanueva", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-089", Latest_Date_of_Approval: "2020-06-14" }
-                ];
-                console.log("📋 Using fallback CLUP records with correct data:", clupRecords.length);
+            // Filter for Negros Island Region provinces only
+            const allowedProvinces = ["Negros Occidental", "Negros Oriental", "Siquijor"];
+            records = records.filter(r => 
+                r.Province && r.Province.trim() && 
+                allowedProvinces.includes(r.Province.trim()) &&
+                r.LGU && r.LGU.trim()
+            );
+            
+            console.log("📋 Negros Island records after filtering:", records.length);
+            
+            if (records.length > 0) {
+                clupRecords = records;
+                console.log(`✅ Loaded ${clupRecords.length} CLUP records for Negros Island Region`);
+                console.log("📋 Sample records:", clupRecords.slice(0, 3));
+                
+                // Save to localStorage
+                localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
+                
+                // Populate provinces
+                populateProvinces();
+                return;
             }
         }
         
-        // Save to localStorage as backup
-        localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
-        populateProvinces();
+        // If no records from server, use fallback
+        console.log("⚠️ No valid CLUP records from server, using fallback...");
+        useFallbackClupData();
         
     } catch (e) {
         console.error("❌ Error fetching CLUP records:", e);
-        // Fallback to localStorage
-        const stored = localStorage.getItem("clupRecords");
-        if (stored) {
-            try {
-                clupRecords = JSON.parse(stored);
-                console.log(`📁 Loaded ${clupRecords.length} CLUP records from cache (fallback)`);
-            } catch (e) {
-                clupRecords = [];
-            }
-        } else {
-            // Use fallback data with correct records
-            clupRecords = [
-                { Province: "Negros Occidental", LGU: "Bacolod City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-001", Latest_Date_of_Approval: "2022-01-15" },
-                { Province: "Negros Occidental", LGU: "Bago City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-045", Latest_Date_of_Approval: "2021-03-20" },
-                { Province: "Negros Oriental", LGU: "Dumaguete City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-015", Latest_Date_of_Approval: "2022-02-10" },
-                { Province: "Siquijor", LGU: "Siquijor", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-034", Latest_Date_of_Approval: "2021-03-12" }
-            ];
-            localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
-        }
-        populateProvinces();
+        useFallbackClupData();
     }
 }
-   function populateProvinces() {
+
+function useFallbackClupData() {
+    console.log("📭 Using fallback CLUP data for Negros Island Region...");
+    
+    // Complete CLUP data from your spreadsheet
+    clupRecords = [
+        // ===== NEGROS OCCIDENTAL (32 records) =====
+        { id: 1, Province: "Negros Occidental", LGU: "City of Bacolod", Approved_By: "DHSUD", Latest_Plan_Res: "DHSUD DC No. 2023-004", Latest_Date_of_Approval: "2023-02-03" },
+        { id: 2, Province: "Negros Occidental", LGU: "City of Bago", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0623 s 2014", Latest_Date_of_Approval: "2014-10-15" },
+        { id: 3, Province: "Negros Occidental", LGU: "Binalbagan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0045 s 2015", Latest_Date_of_Approval: "2015-01-14" },
+        { id: 4, Province: "Negros Occidental", LGU: "City of Cadiz", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0740 s. 2024", Latest_Date_of_Approval: "2024-06-19" },
+        { id: 5, Province: "Negros Occidental", LGU: "Calatrava", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-452", Latest_Date_of_Approval: "2002-05-29" },
+        { id: 6, Province: "Negros Occidental", LGU: "Candoni", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-799", Latest_Date_of_Approval: "2002-09-11" },
+        { id: 7, Province: "Negros Occidental", LGU: "Cauayan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-455", Latest_Date_of_Approval: "2002-05-29" },
+        { id: 8, Province: "Negros Occidental", LGU: "Enrique B. Magalona", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-458", Latest_Date_of_Approval: "1999-09-01" },
+        { id: 9, Province: "Negros Occidental", LGU: "City of Escalante", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-912", Latest_Date_of_Approval: "2002-10-23" },
+        { id: 10, Province: "Negros Occidental", LGU: "City of Himamaylan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0681 s. 2024", Latest_Date_of_Approval: "2024-05-28" },
+        { id: 11, Province: "Negros Occidental", LGU: "Hinigaran", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-823", Latest_Date_of_Approval: "2002-09-18" },
+        { id: 12, Province: "Negros Occidental", LGU: "Hinoba-an", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0149", Latest_Date_of_Approval: "2025-01-28" },
+        { id: 13, Province: "Negros Occidental", LGU: "Ilog", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-104", Latest_Date_of_Approval: "2001-02-14" },
+        { id: 14, Province: "Negros Occidental", LGU: "Isabela", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0946", Latest_Date_of_Approval: "2005-12-21" },
+        { id: 15, Province: "Negros Occidental", LGU: "City of Kabankalan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-1065", Latest_Date_of_Approval: "2019-11-27" },
+        { id: 16, Province: "Negros Occidental", LGU: "City of La Carlota", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0391 s 2013", Latest_Date_of_Approval: "2013-10-09" },
+        { id: 17, Province: "Negros Occidental", LGU: "La Castellana", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-822", Latest_Date_of_Approval: "2002-09-18" },
+        { id: 18, Province: "Negros Occidental", LGU: "Manapla", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0718 s 2014", Latest_Date_of_Approval: "2014-11-19" },
+        { id: 19, Province: "Negros Occidental", LGU: "Moises Padilla", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-960", Latest_Date_of_Approval: "2002-11-13" },
+        { id: 20, Province: "Negros Occidental", LGU: "Murcia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-671", Latest_Date_of_Approval: "2002-08-07" },
+        { id: 21, Province: "Negros Occidental", LGU: "Pontevedra", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-918", Latest_Date_of_Approval: "2002-10-23" },
+        { id: 22, Province: "Negros Occidental", LGU: "Pulupandan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-75", Latest_Date_of_Approval: "2002-01-23" },
+        { id: 23, Province: "Negros Occidental", LGU: "City of Sagay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-1081 s 2022", Latest_Date_of_Approval: "2022-12-13" },
+        { id: 24, Province: "Negros Occidental", LGU: "City of San Carlos", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0737 s 2015", Latest_Date_of_Approval: "2015-11-04" },
+        { id: 25, Province: "Negros Occidental", LGU: "San Enrique", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0859 s 2015", Latest_Date_of_Approval: "2015-12-09" },
+        { id: 26, Province: "Negros Occidental", LGU: "City of Silay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0092", Latest_Date_of_Approval: "2010-01-27" },
+        { id: 27, Province: "Negros Occidental", LGU: "City of Sipalay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-300", Latest_Date_of_Approval: "2007-03-28" },
+        { id: 28, Province: "Negros Occidental", LGU: "City of Talisay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-1382 s 2023", Latest_Date_of_Approval: "2023-12-12" },
+        { id: 29, Province: "Negros Occidental", LGU: "Toboso", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0378 s 2018", Latest_Date_of_Approval: "2018-04-11" },
+        { id: 30, Province: "Negros Occidental", LGU: "Valladolid", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-534", Latest_Date_of_Approval: "2003-07-23" },
+        { id: 31, Province: "Negros Occidental", LGU: "City of Victorias", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-0674", Latest_Date_of_Approval: "2019-08-13" },
+        { id: 32, Province: "Negros Occidental", LGU: "Salvador Benedicto", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP R-21", Latest_Date_of_Approval: "2003-01-08" },
+        
+        // ===== NEGROS ORIENTAL (25 records) =====
+        { id: 33, Province: "Negros Oriental", LGU: "Amlan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 771", Latest_Date_of_Approval: "2006-07-27" },
+        { id: 34, Province: "Negros Oriental", LGU: "Ayungon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 716", Latest_Date_of_Approval: "2009-09-16" },
+        { id: 35, Province: "Negros Oriental", LGU: "Bacong", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Res. No. 25", Latest_Date_of_Approval: "1983-07-16" },
+        { id: 36, Province: "Negros Oriental", LGU: "City of Bais", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 91 s.96", Latest_Date_of_Approval: "1996-02-26" },
+        { id: 37, Province: "Negros Oriental", LGU: "Basay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HSRC Res. No. R-38-2 s.1980", Latest_Date_of_Approval: "1980-06-25" },
+        { id: 38, Province: "Negros Oriental", LGU: "City of Bayawan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 367 s. 2003", Latest_Date_of_Approval: "2003-05-08" },
+        { id: 39, Province: "Negros Oriental", LGU: "Bindoy", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Res. No. 1261 s2024", Latest_Date_of_Approval: "2024-12-09" },
+        { id: 40, Province: "Negros Oriental", LGU: "City of Canlaon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 67 s. 2001", Latest_Date_of_Approval: "2001-02-02" },
+        { id: 41, Province: "Negros Oriental", LGU: "Dauin", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution No. 755", Latest_Date_of_Approval: "2021-10-25" },
+        { id: 42, Province: "Negros Oriental", LGU: "City of Dumaguete", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 703 s.2015", Latest_Date_of_Approval: "2015-11-02" },
+        { id: 43, Province: "Negros Oriental", LGU: "City of Guihulngan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Res. No. 1099-2023", Latest_Date_of_Approval: "2023-10-23" },
+        { id: 44, Province: "Negros Oriental", LGU: "Jimalalud", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "--", Latest_Date_of_Approval: "--" },
+        { id: 45, Province: "Negros Oriental", LGU: "La Libertad", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "--", Latest_Date_of_Approval: "--" },
+        { id: 46, Province: "Negros Oriental", LGU: "Mabinay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP. Resolution No. 354", Latest_Date_of_Approval: "2025-04-07" },
+        { id: 47, Province: "Negros Oriental", LGU: "Manjuyod", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "R 214 s. 1984", Latest_Date_of_Approval: "1982-12-27" },
+        { id: 48, Province: "Negros Oriental", LGU: "Pamplona", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 319", Latest_Date_of_Approval: "2007-03-29" },
+        { id: 49, Province: "Negros Oriental", LGU: "San Jose", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution No. 547, Series of 2022", Latest_Date_of_Approval: "2022-07-11" },
+        { id: 50, Province: "Negros Oriental", LGU: "Santa Catalina", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 559", Latest_Date_of_Approval: "1997-07-12" },
+        { id: 51, Province: "Negros Oriental", LGU: "Siaton", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. R11 s. 1981", Latest_Date_of_Approval: "1981-07-08" },
+        { id: 52, Province: "Negros Oriental", LGU: "Sibulan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution No. 111", Latest_Date_of_Approval: "2022-02-21" },
+        { id: 53, Province: "Negros Oriental", LGU: "City of Tanjay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 312", Latest_Date_of_Approval: "2001-07-12" },
+        { id: 54, Province: "Negros Oriental", LGU: "Tayasan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "R38-2 s.1980", Latest_Date_of_Approval: "1980-06-25" },
+        { id: 55, Province: "Negros Oriental", LGU: "Valencia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 681", Latest_Date_of_Approval: "2008-11-11" },
+        { id: 56, Province: "Negros Oriental", LGU: "Vallehermoso", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Res. No 35", Latest_Date_of_Approval: "2022-01-24" },
+        { id: 57, Province: "Negros Oriental", LGU: "Zamboanguita", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 394", Latest_Date_of_Approval: "2010-06-10" },
+        
+        // ===== SIQUIJOR (6 records) =====
+        { id: 58, Province: "Siquijor", LGU: "Enrique Villanueva", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 092", Latest_Date_of_Approval: "2002-05-06" },
+        { id: 59, Province: "Siquijor", LGU: "Larena", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 092", Latest_Date_of_Approval: "2002-05-06" },
+        { id: 60, Province: "Siquijor", LGU: "Lazi", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 092", Latest_Date_of_Approval: "2002-05-06" },
+        { id: 61, Province: "Siquijor", LGU: "Maria", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 092", Latest_Date_of_Approval: "2002-05-06" },
+        { id: 62, Province: "Siquijor", LGU: "San Juan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 034", Latest_Date_of_Approval: "2003-01-03" },
+        { id: 63, Province: "Siquijor", LGU: "Siquijor", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP 092", Latest_Date_of_Approval: "2002-05-06" }
+    ];
+    
+    localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
+    populateProvinces();
+    console.log(`✅ Loaded ${clupRecords.length} CLUP records for Negros Island Region`);
+}
+
+// Updated populateProvinces for Negros Island Region
+function populateProvinces() {
     let select = document.getElementById("provinceSelect");
+    if (!select) return;
     
-    // Hardcoded list of 3 provinces
-    const provinceList = ["Negros Occidental", "Negros Oriental", "Siquijor"];
+    // Get unique provinces from CLUP records
+    const provinces = new Set();
+    if (clupRecords && clupRecords.length > 0) {
+        clupRecords.forEach(record => {
+            if (record.Province && record.Province.trim()) {
+                provinces.add(record.Province.trim());
+            }
+        });
+    }
     
-    select.innerHTML = '<option value="">-- Choose Province/HUC --</option>' +
-        provinceList
+    // If no provinces found, use Negros Island Region provinces
+    if (provinces.size === 0) {
+        const negrosProvinces = ["Negros Occidental", "Negros Oriental", "Siquijor"];
+        negrosProvinces.forEach(p => provinces.add(p));
+    }
+    
+    select.innerHTML = '<option value="">-- Choose Province --</option>' +
+        Array.from(provinces)
             .sort()
             .map((p) => `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`)
             .join("");
     
-    console.log("Provinces populated:", provinceList.length);
+    console.log("Provinces populated:", provinces.size);
 }
 function filterLguByProvince() {
     let prov = document.getElementById("provinceSelect").value;
@@ -4445,7 +4497,6 @@ function filterLguByProvince() {
     // Clear existing options
     lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
     
-    // Hide LGU dropdown if no province selected
     if (!prov) {
         lguSelect.style.display = "none";
         lguSelect.disabled = true;
@@ -4454,85 +4505,67 @@ function filterLguByProvince() {
     }
     
     console.log("========================================");
-    console.log("Selected Province/HUC:", prov);
+    console.log("Selected Province:", prov);
     console.log("========================================");
     
-    // Bacolod City - Hide LGU entirely (no districts)
-    if (prov === "Bacolod City" || prov.toLowerCase() === "bacolod city") {
-        // HIDE the LGU dropdown - do not show any options
-        lguSelect.style.display = "none";
-        lguSelect.disabled = true;
-        if (lguLabel) lguLabel.style.display = "none";
-        
-        // Clear the LGU selection
-        lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
-        
-        // Also clear the city/province fields since Bacolod City is the LGU itself
-        document.getElementById("city").value = "Bacolod City";
-        document.getElementById("province").value = "Negros Occidental";
-        document.getElementById("approvedBy").value = "Sangguniang Panlalawigan";
-        document.getElementById("circularNo").value = "SP Resolution 2022-001";
-        document.getElementById("approvalDate").value = "2022-01-15";
-        checkBacolodCityConditional();
-        
-        console.log("✅ Bacolod City selected - LGU hidden");
-        return;
-    }
-    
-    // Show LGU dropdown when a province is selected
+    // Show LGU dropdown
     lguSelect.style.display = "block";
     lguSelect.disabled = false;
     if (lguLabel) lguLabel.style.display = "block";
     
-    // Filter CLUP records for provinces
+    // Filter CLUP records by province
     let matchedLGUs = [];
+    let normalizedSelectedProv = prov.trim().toLowerCase();
     
     if (clupRecords && clupRecords.length > 0) {
         clupRecords.forEach((record) => {
-            let recordProv = record.Province || record.province || "";
-            let normalizedRecordProv = recordProv.trim().toLowerCase();
-            let normalizedSelectedProv = prov.trim().toLowerCase();
+            let recordProv = (record.Province || "").trim().toLowerCase();
+            let lguName = record.LGU || "";
             
-            if (normalizedRecordProv === normalizedSelectedProv) {
-                let lguName = record.LGU || record.lgu || "";
-                // Skip Bacolod City when province is Negros Occidental
-                if (prov === "Negros Occidental" && lguName === "Bacolod City") {
-                    return;
-                }
-                if (lguName) {
-                    let existing = matchedLGUs.find(item => item.name === lguName);
-                    if (!existing) {
-                        matchedLGUs.push({
-                            name: lguName,
-                            record: record
-                        });
-                    }
+            if (recordProv === normalizedSelectedProv && lguName) {
+                let existing = matchedLGUs.find(item => item.name === lguName);
+                if (!existing) {
+                    matchedLGUs.push({
+                        name: lguName,
+                        record: record
+                    });
                 }
             }
         });
     }
     
-    // Fallback data if no CLUP records found
+    // If no LGUs found, use fallback data for Negros Island
     if (matchedLGUs.length === 0) {
-        const fallbackData = {
-            "Negros Occidental": {
-                lgus: ["Bago City", "Cadiz City", "Escalante City", "Himamaylan City", "Kabankalan City", "La Carlota City", "Sagay City", "San Carlos City", "Silay City", "Sipalay City", "Talisay City", "Victorias City", "Binalbagan", "Hinigaran", "Moises Padilla", "Pulupandan"]
-            },
-            "Negros Oriental": {
-                lgus: ["Dumaguete City", "Bayawan City", "Bais City", "Canlaon City", "Tanjay City", "Amlan", "Mabinay", "Siaton"]
-            },
-            "Siquijor": {
-                lgus: ["Siquijor", "Larena", "Lazi", "Maria", "San Juan", "Enrique Villanueva"]
-            }
+        const fallbackLGUs = {
+            "Negros Occidental": [
+                "City of Bacolod", "City of Bago", "Binalbagan", "City of Cadiz",
+                "Calatrava", "Candoni", "Cauayan", "Enrique B. Magalona",
+                "City of Escalante", "City of Himamaylan", "Hinigaran",
+                "Hinoba-an", "Ilog", "Isabela", "City of Kabankalan",
+                "City of La Carlota", "La Castellana", "Manapla",
+                "Moises Padilla", "Murcia", "Pontevedra", "Pulupandan",
+                "City of Sagay", "City of San Carlos", "San Enrique",
+                "City of Silay", "City of Sipalay", "City of Talisay",
+                "Toboso", "Valladolid", "City of Victorias", "Salvador Benedicto"
+            ],
+            "Negros Oriental": [
+                "Amlan", "Ayungon", "Bacong", "City of Bais", "Basay",
+                "City of Bayawan", "Bindoy", "City of Canlaon", "Dauin",
+                "City of Dumaguete", "City of Guihulngan", "Jimalalud",
+                "La Libertad", "Mabinay", "Manjuyod", "Pamplona",
+                "San Jose", "Santa Catalina", "Siaton", "Sibulan",
+                "City of Tanjay", "Tayasan", "Valencia", "Vallehermoso",
+                "Zamboanguita"
+            ],
+            "Siquijor": [
+                "Enrique Villanueva", "Larena", "Lazi", "Maria",
+                "San Juan", "Siquijor"
+            ]
         };
         
-        let provinceData = fallbackData[prov];
+        let provinceData = fallbackLGUs[prov];
         if (provinceData) {
-            let lguNames = provinceData.lgus || [];
-            if (prov === "Negros Occidental") {
-                lguNames = lguNames.filter(name => name !== "Bacolod City");
-            }
-            lguNames.forEach(name => {
+            provinceData.forEach(name => {
                 matchedLGUs.push({
                     name: name,
                     record: {
@@ -4564,11 +4597,11 @@ function filterLguByProvince() {
         opt.textContent = item.name;
         let record = item.record;
         opt.dataset.record = JSON.stringify({
-            LGU: record.LGU || record.lgu || item.name,
-            Province: record.Province || record.province || prov,
-            Approved_By: record.Approved_By || record.approved_by || "Sangguniang Panlalawigan",
-            Latest_Plan_Res: record.Latest_Plan_Res || record.latest_plan_res || "",
-            Latest_Date_of_Approval: record.Latest_Date_of_Approval || record.latest_date_of_approval || ""
+            LGU: record.LGU || item.name,
+            Province: record.Province || prov,
+            Approved_By: record.Approved_By || "Sangguniang Panlalawigan",
+            Latest_Plan_Res: record.Latest_Plan_Res || "",
+            Latest_Date_of_Approval: record.Latest_Date_of_Approval || ""
         });
         lguSelect.appendChild(opt);
     });
