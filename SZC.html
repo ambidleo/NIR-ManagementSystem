@@ -3640,167 +3640,252 @@ label[for="lguSelect"] {
         console.log("✅ Provinces populated:", provinces.size);
     }
 
-    function filterLguByProvince() {
-        let prov = document.getElementById("provinceSelect").value;
-        let lguSelect = document.getElementById("lguSelect");
-        let lguLabel = document.querySelector('label[for="lguSelect"]');
-        
-        // Clear existing options
-        lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
-        
-        if (!prov) {
-            lguSelect.style.display = "none";
-            lguSelect.disabled = true;
-            if (lguLabel) lguLabel.style.display = "none";
-            return;
-        }
-        
-        console.log("========================================");
-        console.log("Selected Province:", prov);
-        console.log("========================================");
-        
-        // Show LGU dropdown
-        lguSelect.style.display = "block";
-        lguSelect.disabled = false;
-        if (lguLabel) lguLabel.style.display = "block";
-        
-        // Filter CLUP records by province
-        let matchedLGUs = [];
-        let normalizedSelectedProv = prov.trim().toLowerCase();
-        
-        if (clupRecords && clupRecords.length > 0) {
-            clupRecords.forEach((record) => {
-                let recordProv = (record.Province || "").trim().toLowerCase();
-                let lguName = record.LGU || "";
-                
-                if (recordProv === normalizedSelectedProv && lguName) {
-                    let existing = matchedLGUs.find(item => item.name === lguName);
-                    if (!existing) {
-                        matchedLGUs.push({
-                            name: lguName,
-                            record: record
-                        });
-                    }
-                }
-            });
-        }
-        
-        // If no LGUs found, use fallback data
-        if (matchedLGUs.length === 0) {
-            const fallbackLGUs = {
-                "Negros Occidental": [
-                    "City of Bacolod", "City of Bago", "Binalbagan", "City of Cadiz",
-                    "Calatrava", "Candoni", "Cauayan", "Enrique B. Magalona",
-                    "City of Escalante", "City of Himamaylan", "Hinigaran",
-                    "Hinoba-an", "Ilog", "Isabela", "City of Kabankalan",
-                    "City of La Carlota", "La Castellana", "Manapla",
-                    "Moises Padilla", "Murcia", "Pontevedra", "Pulupandan",
-                    "City of Sagay", "City of San Carlos", "San Enrique",
-                    "City of Silay", "City of Sipalay", "City of Talisay",
-                    "Toboso", "Valladolid", "City of Victorias", "Salvador Benedicto"
-                ],
-                "Negros Oriental": [
-                    "Amlan", "Ayungon", "Bacong", "City of Bais", "Basay",
-                    "City of Bayawan", "Bindoy", "City of Canlaon", "Dauin",
-                    "City of Dumaguete", "City of Guihulngan", "Jimalalud",
-                    "La Libertad", "Mabinay", "Manjuyod", "Pamplona",
-                    "San Jose", "Santa Catalina", "Siaton", "Sibulan",
-                    "City of Tanjay", "Tayasan", "Valencia", "Vallehermoso",
-                    "Zamboanguita"
-                ],
-                "Siquijor": [
-                    "Enrique Villanueva", "Larena", "Lazi", "Maria",
-                    "San Juan", "Siquijor"
-                ]
-            };
-            
-            let provinceData = fallbackLGUs[prov];
-            if (provinceData) {
-                provinceData.forEach(name => {
-                    matchedLGUs.push({
-                        name: name,
-                        record: {
-                            LGU: name,
-                            Province: prov,
-                            Approved_By: "Sangguniang Panlalawigan",
-                            Latest_Plan_Res: "SP Resolution",
-                            Latest_Date_of_Approval: ""
-                        }
-                    });
-                });
-            }
-        }
-        
-        matchedLGUs.sort((a, b) => a.name.localeCompare(b.name));
-        
-        if (matchedLGUs.length === 0) {
-            let opt = document.createElement("option");
-            opt.value = "";
-            opt.textContent = "-- No LGUs found --";
-            lguSelect.appendChild(opt);
-            lguSelect.disabled = true;
-            return;
-        }
-        
-        matchedLGUs.forEach(item => {
-            let opt = document.createElement("option");
-            opt.value = item.name;
-            opt.textContent = item.name;
-            let record = item.record;
-            opt.dataset.record = JSON.stringify({
-                LGU: record.LGU || item.name,
-                Province: record.Province || prov,
-                Approved_By: record.Approved_By || "Sangguniang Panlalawigan",
-                Latest_Plan_Res: record.Latest_Plan_Res || "",
-                Latest_Date_of_Approval: record.Latest_Date_of_Approval || ""
-            });
-            lguSelect.appendChild(opt);
-        });
-        
-        lguSelect.disabled = false;
-        console.log("✅ LGUs populated:", matchedLGUs.length);
+   function filterLguByProvince() {
+    let prov = document.getElementById("provinceSelect").value;
+    let lguSelect = document.getElementById("lguSelect");
+    let lguLabel = document.querySelector('label[for="lguSelect"]');
+    
+    // Clear existing options
+    lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
+    
+    if (!prov) {
+        lguSelect.style.display = "none";
+        lguSelect.disabled = true;
+        if (lguLabel) lguLabel.style.display = "none";
+        // Clear fields when no province selected
+        document.getElementById("city").value = "";
+        document.getElementById("province").value = "";
+        document.getElementById("approvedBy").value = "";
+        document.getElementById("circularNo").value = "";
+        document.getElementById("approvalDate").value = "";
+        return;
     }
+    
+    console.log("========================================");
+    console.log("Selected Province:", prov);
+    console.log("========================================");
+    
+    // Show LGU dropdown
+    lguSelect.style.display = "block";
+    lguSelect.disabled = false;
+    if (lguLabel) lguLabel.style.display = "block";
+    
+    // Filter CLUP records by province
+    let matchedLGUs = [];
+    let normalizedSelectedProv = prov.trim().toLowerCase();
+    
+    if (clupRecords && clupRecords.length > 0) {
+        clupRecords.forEach((record) => {
+            let recordProv = (record.Province || "").trim().toLowerCase();
+            let lguName = record.LGU || "";
+            
+            if (recordProv === normalizedSelectedProv && lguName) {
+                let existing = matchedLGUs.find(item => item.name === lguName);
+                if (!existing) {
+                    matchedLGUs.push({
+                        name: lguName,
+                        record: record
+                    });
+                }
+            }
+        });
+    }
+    
+    // If no LGUs found, use fallback data
+    if (matchedLGUs.length === 0) {
+        const fallbackLGUs = {
+            "Negros Occidental": [
+                "City of Bacolod", "City of Bago", "Binalbagan", "City of Cadiz",
+                "Calatrava", "Candoni", "Cauayan", "Enrique B. Magalona",
+                "City of Escalante", "City of Himamaylan", "Hinigaran",
+                "Hinoba-an", "Ilog", "Isabela", "City of Kabankalan",
+                "City of La Carlota", "La Castellana", "Manapla",
+                "Moises Padilla", "Murcia", "Pontevedra", "Pulupandan",
+                "City of Sagay", "City of San Carlos", "San Enrique",
+                "City of Silay", "City of Sipalay", "City of Talisay",
+                "Toboso", "Valladolid", "City of Victorias", "Salvador Benedicto"
+            ],
+            "Negros Oriental": [
+                "Amlan", "Ayungon", "Bacong", "City of Bais", "Basay",
+                "City of Bayawan", "Bindoy", "City of Canlaon", "Dauin",
+                "City of Dumaguete", "City of Guihulngan", "Jimalalud",
+                "La Libertad", "Mabinay", "Manjuyod", "Pamplona",
+                "San Jose", "Santa Catalina", "Siaton", "Sibulan",
+                "City of Tanjay", "Tayasan", "Valencia", "Vallehermoso",
+                "Zamboanguita"
+            ],
+            "Siquijor": [
+                "Enrique Villanueva", "Larena", "Lazi", "Maria",
+                "San Juan", "Siquijor"
+            ]
+        };
+        
+        let provinceData = fallbackLGUs[prov];
+        if (provinceData) {
+            provinceData.forEach(name => {
+                // Try to find matching record in clupRecords for this LGU
+                let matchingRecord = clupRecords.find(r => 
+                    r.LGU && r.LGU.toLowerCase().trim() === name.toLowerCase().trim()
+                );
+                
+                matchedLGUs.push({
+                    name: name,
+                    record: matchingRecord || {
+                        LGU: name,
+                        Province: prov,
+                        Approved_By: "Sangguniang Panlalawigan",
+                        Latest_Plan_Res: "SP Resolution",
+                        Latest_Date_of_Approval: ""
+                    }
+                });
+            });
+        }
+    }
+    
+    matchedLGUs.sort((a, b) => a.name.localeCompare(b.name));
+    
+    if (matchedLGUs.length === 0) {
+        let opt = document.createElement("option");
+        opt.value = "";
+        opt.textContent = "-- No LGUs found --";
+        lguSelect.appendChild(opt);
+        lguSelect.disabled = true;
+        return;
+    }
+    
+    matchedLGUs.forEach(item => {
+        let opt = document.createElement("option");
+        opt.value = item.name;
+        opt.textContent = item.name;
+        let record = item.record;
+        opt.dataset.record = JSON.stringify({
+            LGU: record.LGU || item.name,
+            Province: record.Province || prov,
+            Approved_By: record.Approved_By || "Sangguniang Panlalawigan",
+            Latest_Plan_Res: record.Latest_Plan_Res || "",
+            Latest_Date_of_Approval: record.Latest_Date_of_Approval || ""
+        });
+        lguSelect.appendChild(opt);
+    });
+    
+    lguSelect.disabled = false;
+    console.log("✅ LGUs populated:", matchedLGUs.length);
+    
+    // ===== NEW: Auto-select the first LGU and populate CLUP details =====
+    if (matchedLGUs.length > 0) {
+        // Select the first LGU
+        lguSelect.selectedIndex = 1; // First option after the placeholder
+        // Trigger the change event to populate fields
+        fillFromCLUP();
+        console.log("✅ Auto-selected first LGU and populated CLUP details");
+    }
+}
 
     function fillFromCLUP() {
-        let sel = document.getElementById("lguSelect");
-        let opt = sel.options[sel.selectedIndex];
-        if (!opt?.dataset?.record) return;
-        let plan = JSON.parse(opt.dataset.record);
-
-        console.log("Full CLUP Record:", plan);
-
-        // Fill basic fields
-        document.getElementById("city").value = plan.LGU || plan.lgu || "";
-        document.getElementById("province").value = plan.Province || plan.province || "";
-        document.getElementById("approvedBy").value = plan.Approved_By || "Sangguniang Panlalawigan";
-        document.getElementById("circularNo").value = plan.Latest_Plan_Res || "";
+    let sel = document.getElementById("lguSelect");
+    let opt = sel.options[sel.selectedIndex];
+    
+    if (!opt || !opt.value || opt.value === "") {
+        console.warn("⚠️ No LGU selected");
+        return;
+    }
+    
+    if (!opt?.dataset?.record) {
+        console.warn("⚠️ No record data found for selected LGU:", opt.value);
+        // Try to find the record in clupRecords
+        let lguName = opt.value;
+        let province = document.getElementById("provinceSelect").value;
+        let foundRecord = clupRecords.find(r => 
+            r.LGU && r.LGU.toLowerCase().trim() === lguName.toLowerCase().trim() &&
+            r.Province && r.Province.toLowerCase().trim() === province.toLowerCase().trim()
+        );
         
-        // Set approval date
-        let appDate = plan.Latest_Date_of_Approval || "";
-        if (appDate && appDate !== "") {
-            if (appDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                document.getElementById("approvalDate").value = appDate;
-            } else {
-                try {
-                    let d = new Date(appDate);
-                    if (!isNaN(d.getTime())) {
-                        let year = d.getFullYear();
-                        let month = String(d.getMonth() + 1).padStart(2, '0');
-                        let day = String(d.getDate()).padStart(2, '0');
-                        document.getElementById("approvalDate").value = `${year}-${month}-${day}`;
+        if (foundRecord) {
+            console.log("✅ Found record in clupRecords:", foundRecord);
+            // Fill fields from found record
+            document.getElementById("city").value = foundRecord.LGU || "";
+            document.getElementById("province").value = foundRecord.Province || "";
+            document.getElementById("approvedBy").value = foundRecord.Approved_By || "Sangguniang Panlalawigan";
+            document.getElementById("circularNo").value = foundRecord.Latest_Plan_Res || "";
+            
+            let appDate = foundRecord.Latest_Date_of_Approval || "";
+            if (appDate && appDate !== "") {
+                if (appDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    document.getElementById("approvalDate").value = appDate;
+                } else {
+                    try {
+                        let d = new Date(appDate);
+                        if (!isNaN(d.getTime())) {
+                            let year = d.getFullYear();
+                            let month = String(d.getMonth() + 1).padStart(2, '0');
+                            let day = String(d.getDate()).padStart(2, '0');
+                            document.getElementById("approvalDate").value = `${year}-${month}-${day}`;
+                        }
+                    } catch (e) {
+                        console.warn("Could not parse date:", appDate);
                     }
-                } catch (e) {
-                    console.warn("Could not parse date:", appDate);
                 }
+            } else {
+                document.getElementById("approvalDate").value = "";
             }
-        } else {
-            document.getElementById("approvalDate").value = "";
+            
+            checkBacolodCityConditional();
+            return;
         }
+        return;
+    }
+    
+    let plan = JSON.parse(opt.dataset.record);
+    console.log("📋 Full CLUP Record from dataset:", plan);
 
-        // Show conditional fields
-        checkBacolodCityConditional();
+    // Fill basic fields
+    document.getElementById("city").value = plan.LGU || plan.lgu || "";
+    document.getElementById("province").value = plan.Province || plan.province || "";
+    
+    // ===== CRITICAL FIX: Set Resolution No. (circularNo) =====
+    const resolutionNo = plan.Latest_Plan_Res || plan.circularNo || plan.resolution || "";
+    console.log("📋 Resolution No. found:", resolutionNo);
+    document.getElementById("circularNo").value = resolutionNo;
+    
+    // Set Approved By
+    const approvedBy = plan.Approved_By || plan.approved_by || "Sangguniang Panlalawigan";
+    document.getElementById("approvedBy").value = approvedBy;
+    
+    // Set approval date
+    let appDate = plan.Latest_Date_of_Approval || plan.approvalDate || "";
+    console.log("📋 Approval Date found:", appDate);
+    
+    if (appDate && appDate !== "") {
+        if (appDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            document.getElementById("approvalDate").value = appDate;
+        } else {
+            try {
+                let d = new Date(appDate);
+                if (!isNaN(d.getTime())) {
+                    let year = d.getFullYear();
+                    let month = String(d.getMonth() + 1).padStart(2, '0');
+                    let day = String(d.getDate()).padStart(2, '0');
+                    document.getElementById("approvalDate").value = `${year}-${month}-${day}`;
+                }
+            } catch (e) {
+                console.warn("Could not parse date:", appDate);
+            }
+        }
+    } else {
+        document.getElementById("approvalDate").value = "";
     }
 
+    // Show conditional fields
+    checkBacolodCityConditional();
+    
+    // Log what was set
+    console.log("✅ Filled CLUP data:");
+    console.log("   City:", document.getElementById("city").value);
+    console.log("   Province:", document.getElementById("province").value);
+    console.log("   Approved By:", document.getElementById("approvedBy").value);
+    console.log("   Resolution No.:", document.getElementById("circularNo").value);
+    console.log("   Approval Date:", document.getElementById("approvalDate").value);
+}
     function checkBacolodCityConditional() {
         var conditionalDiv = document.getElementById("bacolodConditionalFields");
         if (conditionalDiv) {
