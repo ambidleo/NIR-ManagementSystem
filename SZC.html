@@ -5367,13 +5367,32 @@ label[for="lguSelect"] {
 
         const showConversionText = rec.purpose !== "Conversion" && 
                                    (rec.purpose && rec.purpose.toLowerCase().trim() !== "conversion");
+// ====== ADD EXTRA TEXT FOR BACOLOD CITY WITH DAR EXEMPTION ======
+let extraBacolodText = '';
 
+// Check if city is Bacolod City AND purpose is "DAR Exemption"
+const isBacolodCity = rec.city && rec.city.toLowerCase().includes('bacolod');
+const isDARExemption = rec.purpose && rec.purpose.toLowerCase().trim() === 'dar exemption';
+
+if (isBacolodCity && isDARExemption) {
+    extraBacolodText = `
+        <p style="margin-top:0.2cm; margin-left:0.5cm; text-align:justify; font-size:12pt; line-height:1.5;">
+            <strong>THIS IS TO CERTIFY</strong> that same tract of land was within a zone classified as 
+            <strong>${escapeHtml(rec.landClass || '___________')}</strong> per the Comprehensive Land Use Plan/Zoning Ordinance 
+            of <strong>${escapeHtml(rec.city || 'Bacolod City')}</strong>.
+        </p>
+    `;
+    console.log("✅ Added DAR Exemption text for Bacolod City");
+} else {
+    console.log("ℹ️ DAR Exemption text not added. isBacolodCity:", isBacolodCity, "isDARExemption:", isDARExemption);
+}
         const statusHtml = `
         <div style="margin-bottom: 35px;">
             <p style="margin:0 0 8px 0; font-size:12pt; font-weight:bold;">1. ${check1} WITH APPROVED CLUP/ZO</p>
             <p style="margin-left:0.6cm; text-indent:1.5cm; text-align:justify; font-size:12pt; margin-top:0; margin-bottom: 15px; line-height:1.5;">
                 THIS IS TO CERTIFY that the above-described landholdings is/are zoned for use/s specified in the above table per <strong>approved Comprehensive Land Use Plan/Zoning Ordinance of ${locationDisplay}</strong>, as <strong>approved by the ${escapeHtml(finalApprovedBy)} through ${escapeHtml(finalCircularNo)} dated ${approvalDateFormatted}</strong> in accordance with pertinent issuances;
             </p>
+             ${extraBacolodText}
             <p style="margin-left:0.6cm; text-indent:0.5cm; font-size:12pt; margin-top:5px; margin-bottom:5px; line-height:1.5;">
                 Further, the proposed conversion:
             </p>
