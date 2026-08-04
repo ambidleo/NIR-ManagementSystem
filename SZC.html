@@ -2301,11 +2301,11 @@ th:hover .sort-icon {
 }
 
 /* Ensure Purpose and Land Class fields are visible */
-#iloiloConditionalFields {
+#negrosConditionalFields {
     display: block !important;
 }
 
-#iloiloConditionalFields .form-group {
+#negrosConditionalFields .form-group {
     display: block !important;
 }
 
@@ -2340,7 +2340,7 @@ label[for="lguSelect"] {
                 <div class="logo-area-header">
                     <div class="header-logo-img">
                         <img src="img/DHSUD_LOGO.png" alt="DHSUD Logo" onerror="this.style.display='none'" />
-                        <span>DHSUD VI - ELUPDD Integrated Database and Information System</span>
+                        <span>DHSUD NIR - ELUPDD Integrated Database and Information System</span>
                     </div>
                 </div>
                 <div class="nav-right" id="userMenuContainer"></div>
@@ -2372,7 +2372,7 @@ label[for="lguSelect"] {
 <div class="latest-numbers-panel">
     <div class="latest-number-card">
         <label>📄 LATEST CERTIFICATION NO.</label>
-        <div class="number-value" id="latestCertNoDisplay">SZC-RVI26-001</div>
+        <div class="number-value" id="latestCertNoDisplay">SZC-NIR26-001</div>
         <div class="number-hint">Auto-generated based on current month</div>
     </div>
     <div class="latest-number-card">
@@ -2396,10 +2396,10 @@ label[for="lguSelect"] {
         <div class="number-editor-group" style="flex: 2;">
             <label>📄 Certification No. (SZC)</label>
             <div class="number-editor-input">
-                <span class="prefix">SZC-RVI</span>
+                <span class="prefix">SZC-NIR</span>
                 <input type="text" id="certNumberParts" placeholder="YY-NNN" maxlength="6" size="7" style="width: 120px; font-family: monospace; font-size: 0.9rem; text-align: center; letter-spacing: 1px;">
             </div>
-            <div class="number-preview" id="certPreview">Full: SZC-RVI-YY-NNN</div>
+            <div class="number-preview" id="certPreview">Full: SZC-NIR-YY-NNN</div>
             <div style="font-size: 0.65rem; color: #94a3b8; margin-top: 4px;">💡 Format: YY-NNN (e.g., 26-001 or 06-001)</div>
         </div>
         <div class="number-editor-group" style="flex: 1;">
@@ -2554,7 +2554,7 @@ label[for="lguSelect"] {
                                 <div class="form-grid">
                                    <div class="form-group">
     <label>City/Municipality</label>
-    <input type="text" id="city" class="form-control" readonly onchange="checkIloiloCityConditional()" />
+    <input type="text" id="city" class="form-control" readonly onchange="checkBacolodCityConditional()" />
 </div>
 <div class="form-group">
     <label>Province</label>
@@ -2574,7 +2574,7 @@ label[for="lguSelect"] {
 </div>
                                 </div>
                                 <!-- PURPOSE AND LAND CLASS FIELDS - NOW ALWAYS VISIBLE -->
-                                <div id="iloiloConditionalFields" style="display: block; margin-top: 1rem">
+                                <div id="negrosConditionalFields" style="display: block; margin-top: 1rem">
                                     <div class="form-group">
                                         <label>Purpose</label>
                                         <select id="purpose" class="form-control" onchange="purposeChanged()">
@@ -3083,7 +3083,7 @@ label[for="lguSelect"] {
                     <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
                         <div style="flex: 1;">
                             <label style="font-size: 0.7rem; font-weight: 600;">📄 Certification No.</label>
-                            <input type="text" id="dmsCertNo" class="form-control" placeholder="e.g., SZC-RVI25-001" style="font-size: 0.8rem; padding: 6px 10px;">
+                            <input type="text" id="dmsCertNo" class="form-control" placeholder="e.g., SZC-NIR25-001" style="font-size: 0.8rem; padding: 6px 10px;">
                         </div>
                         <div style="flex: 1;">
                             <label style="font-size: 0.7rem; font-weight: 600;">👤 Requested By</label>
@@ -3341,7 +3341,7 @@ label[for="lguSelect"] {
                         <div class="login-modal-content">
                             <div class="login-modal-header">
                                 <div class="seal-icon">🏛️</div>
-                                <h3>DHSUD Region VI</h3>
+                                <h3>DHSUD Negros Island Region</h3>
                                 <p style="font-size: 0.8rem; opacity: 0.9">Sign in to access your account</p>
                             </div>
                             <div class="login-modal-body">
@@ -3912,7 +3912,7 @@ function confirmSavePoint() {
         let geoJsonLayers = [],
             currentActiveLayer = null,
             classColorMap = new Map();
-        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbxCYiLHesLAvoh6wV_gTQyTGYBwRqiBwDpiKiLsYHOntGVF2gW5NjWUS50YzoHaJmk/exec";
+        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzL3kLG64ODEFKmZsVm60R7kqW62asHA1I6Emr3mXoHldxqtP0Cf7r5pr2r6nFkvnWX/exec";
         let defaultRows = [
             {
                 from: "Corner 1",
@@ -4050,7 +4050,7 @@ function confirmSavePoint() {
     
     let year = new Date().getFullYear().toString().slice(-2);
     let nextNumber = (max + 1).toString().padStart(3, "0");
-    let newCert = `SZC-RVI${year}-${nextNumber}`;
+    let newCert = `SZC-NIR${year}-${nextNumber}`;
     console.log("Generated new certification number:", newCert);
     return newCert;
 }
@@ -4351,117 +4351,68 @@ async function fetchClupRecords() {
                 clupRecords = JSON.parse(stored);
                 console.log(`📁 Loaded ${clupRecords.length} CLUP records from cache`);
             } else {
-                // Use fallback data with corrected Guimaras records
+                // Use fallback data with corrected Negros Occidental records
                 console.log("📭 No CLUP records found anywhere, using fallback");
                 clupRecords = [
-                    // Aklan records
-                    { Province: "Aklan", LGU: "Altavas", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-1544", Latest_Date_of_Approval: "2021-12-13" },
-                    { Province: "Aklan", LGU: "Balete", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 05-118", Latest_Date_of_Approval: "2005-04-13" },
-                    { Province: "Aklan", LGU: "Banga", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-886", Latest_Date_of_Approval: "2018-06-25" },
-                    { Province: "Aklan", LGU: "Batan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-302", Latest_Date_of_Approval: "2017-04-10" },
-                    { Province: "Aklan", LGU: "Buruanga", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 107 s 2013", Latest_Date_of_Approval: "2013-10-09" },
-                    { Province: "Aklan", LGU: "Ibajay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 85", Latest_Date_of_Approval: "1982-09-01" },
-                    { Province: "Aklan", LGU: "Kalibo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-1001", Latest_Date_of_Approval: "2021-01-11" },
-                    { Province: "Aklan", LGU: "Lezo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 490", Latest_Date_of_Approval: "1991-09-17" },
-                    { Province: "Aklan", LGU: "Libacao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-1517", Latest_Date_of_Approval: "2021-11-29" },
-                    { Province: "Aklan", LGU: "Madalag", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 383", Latest_Date_of_Approval: "1987-06-17" },
-                    { Province: "Aklan", LGU: "Makato", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 11", Latest_Date_of_Approval: "1981-07-08" },
-                    { Province: "Aklan", LGU: "Malay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 226 s 2015", Latest_Date_of_Approval: "2015-08-19" },
-                    { Province: "Aklan", LGU: "Malinao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-1044", Latest_Date_of_Approval: "2018-10-08" },
-                    { Province: "Aklan", LGU: "Nabas", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 01-035", Latest_Date_of_Approval: "2001-01-24" },
-                    { Province: "Aklan", LGU: "New Washington", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-1643", Latest_Date_of_Approval: "2022-01-31" },
-                    { Province: "Aklan", LGU: "Numancia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 41-3", Latest_Date_of_Approval: "1980-12-04" },
-                    { Province: "Aklan", LGU: "Tangalan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 018 s 2013", Latest_Date_of_Approval: "2013-07-13" },
-                    // Antique records
-                    { Province: "Antique", LGU: "Anini-y", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 197-2009", Latest_Date_of_Approval: "2009-08-13" },
-                    { Province: "Antique", LGU: "Barbaza", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 066-2013", Latest_Date_of_Approval: "2013-10-17" },
-                    { Province: "Antique", LGU: "Belison", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 631-2020", Latest_Date_of_Approval: "2020-10-22" },
-                    { Province: "Antique", LGU: "Bugasong", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 243-2008", Latest_Date_of_Approval: "2008-10-15" },
-                    { Province: "Antique", LGU: "Caluya", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 117-2016", Latest_Date_of_Approval: "2016-09-08" },
-                    { Province: "Antique", LGU: "Culasi", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 022-2019", Latest_Date_of_Approval: "2019-07-18" },
-                    { Province: "Antique", LGU: "Tobias Fornier", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 162-2005", Latest_Date_of_Approval: "2005-01-20" },
-                    { Province: "Antique", LGU: "Hamtic", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. 149-2003", Latest_Date_of_Approval: "2003-05-13" },
-                    { Province: "Antique", LGU: "Laua-an", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 116-2018", Latest_Date_of_Approval: "2018-04-19" },
-                    { Province: "Antique", LGU: "Libertad", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 487-2002", Latest_Date_of_Approval: "2002-11-07" },
-                    { Province: "Antique", LGU: "Pandan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 086-2016", Latest_Date_of_Approval: "2016-08-18" },
-                    { Province: "Antique", LGU: "Patnongon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 126-2015", Latest_Date_of_Approval: "2015-05-28" },
-                    { Province: "Antique", LGU: "San Jose", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 176-2011", Latest_Date_of_Approval: "2011-05-20" },
-                    { Province: "Antique", LGU: "San Remigio", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 409-2022", Latest_Date_of_Approval: "2022-05-26" },
-                    { Province: "Antique", LGU: "Sebaste", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 518-2002", Latest_Date_of_Approval: "2002-12-12" },
-                    { Province: "Antique", LGU: "Sibalom", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 171-2012", Latest_Date_of_Approval: "2012-07-13" },
-                    { Province: "Antique", LGU: "Tibiao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 072-2004", Latest_Date_of_Approval: "2004-03-04" },
-                    { Province: "Antique", LGU: "Valderrama", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 107-2006", Latest_Date_of_Approval: "2006-06-15" },
-                    // Capiz records
-                    { Province: "Capiz", LGU: "Cuartero", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 163", Latest_Date_of_Approval: "2005-08-12" },
-                    { Province: "Capiz", LGU: "Dao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 197", Latest_Date_of_Approval: "2005-10-12" },
-                    { Province: "Capiz", LGU: "Dumalag", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 217", Latest_Date_of_Approval: "2003-12-18" },
-                    { Province: "Capiz", LGU: "Dumarao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 650 s 2021", Latest_Date_of_Approval: "2021-09-07" },
-                    { Province: "Capiz", LGU: "Ivisan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 4", Latest_Date_of_Approval: "2000-01-07" },
-                    { Province: "Capiz", LGU: "Jamindan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 001", Latest_Date_of_Approval: "2004-01-09" },
-                    { Province: "Capiz", LGU: "Ma-ayon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 008", Latest_Date_of_Approval: "2006-05-26" },
-                    { Province: "Capiz", LGU: "Mambusao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 046", Latest_Date_of_Approval: "2007-03-16" },
-                    { Province: "Capiz", LGU: "Panay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 063 s 2014", Latest_Date_of_Approval: "2014-04-10" },
-                    { Province: "Capiz", LGU: "Panitan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 185", Latest_Date_of_Approval: "2000-09-08" },
-                    { Province: "Capiz", LGU: "Pilar", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 083", Latest_Date_of_Approval: "2002-04-19" },
-                    { Province: "Capiz", LGU: "Pontevedra", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 313", Latest_Date_of_Approval: "2000-12-15" },
-                    { Province: "Capiz", LGU: "President Roxas", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 162", Latest_Date_of_Approval: "2002-08-02" },
-                    { Province: "Capiz", LGU: "Roxas City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 005", Latest_Date_of_Approval: "2008-01-10" },
-                    { Province: "Capiz", LGU: "Sapi-an", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 135", Latest_Date_of_Approval: "2014-08-13" },
-                    { Province: "Capiz", LGU: "Sigma", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 088", Latest_Date_of_Approval: "2003-06-06" },
-                    { Province: "Capiz", LGU: "Tapaz", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 715 s 2022", Latest_Date_of_Approval: "2022-04-19" },
-                    // Guimaras records - UPDATED WITH CORRECT RESOLUTION NUMBERS
-                    { Province: "Guimaras", LGU: "Buenavista", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. 687", Latest_Date_of_Approval: "2025-12-04" },
-                    { Province: "Guimaras", LGU: "Jordan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. R-592", Latest_Date_of_Approval: "2025-10-02" },
-                    { Province: "Guimaras", LGU: "Nueva Valencia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 36", Latest_Date_of_Approval: "2000-06-30" },
-                    { Province: "Guimaras", LGU: "San Lorenzo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 37", Latest_Date_of_Approval: "2000-06-30" },
-                    { Province: "Guimaras", LGU: "Sibunag", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 204", Latest_Date_of_Approval: "2012-09-19" },
-                    // Iloilo records (sample - you have many more in your data)
-                    { Province: "Iloilo", LGU: "Ajuy", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2005-081", Latest_Date_of_Approval: "2005-05-17" },
-                    { Province: "Iloilo", LGU: "Alimodian", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-532", Latest_Date_of_Approval: "2022-09-20" },
-                    { Province: "Iloilo", LGU: "Anilao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-625", Latest_Date_of_Approval: "2019-12-10" },
-                    { Province: "Iloilo", LGU: "Badiangan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 376", Latest_Date_of_Approval: "1987-03-17" },
-                    { Province: "Iloilo", LGU: "Balasan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2004-204", Latest_Date_of_Approval: "2004-12-17" },
-                    { Province: "Iloilo", LGU: "Banate", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-398", Latest_Date_of_Approval: "2017-06-27" },
-                    { Province: "Iloilo", LGU: "Barotac Nuevo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-236", Latest_Date_of_Approval: "2022-05-24" },
-                    { Province: "Iloilo", LGU: "Barotac Viejo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2004-007", Latest_Date_of_Approval: "2004-01-27" },
-                    { Province: "Iloilo", LGU: "Batad", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2004-021", Latest_Date_of_Approval: "2004-02-12" },
-                    { Province: "Iloilo", LGU: "Bingawan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-192", Latest_Date_of_Approval: "2017-04-04" },
-                    { Province: "Iloilo", LGU: "Cabatuan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2007-021", Latest_Date_of_Approval: "2007-02-20" },
-                    { Province: "Iloilo", LGU: "Calinog", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-294", Latest_Date_of_Approval: "2017-05-16" },
-                    { Province: "Iloilo", LGU: "Carles", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2013-109", Latest_Date_of_Approval: "2013-03-27" },
-                    { Province: "Iloilo", LGU: "Concepcion", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2002-162", Latest_Date_of_Approval: "2002-11-12" },
-                    { Province: "Iloilo", LGU: "Dingle", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-463", Latest_Date_of_Approval: "2018-07-10" },
-                    { Province: "Iloilo", LGU: "Dueñas", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2014-258", Latest_Date_of_Approval: "2014-07-22" },
-                    { Province: "Iloilo", LGU: "Dumangas", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 97-023", Latest_Date_of_Approval: "1997-02-05" },
-                    { Province: "Iloilo", LGU: "Estancia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 138", Latest_Date_of_Approval: "1983-09-07" },
-                    { Province: "Iloilo", LGU: "Guimbal", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2005-107", Latest_Date_of_Approval: "2005-07-05" },
-                    { Province: "Iloilo", LGU: "Igbaras", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-419", Latest_Date_of_Approval: "2018-06-11" },
-                    { Province: "Iloilo", LGU: "Iloilo City", Approved_By: "DHSUD", Latest_Plan_Res: "DHSUD DC No. 2022-002", Latest_Date_of_Approval: "2022-05-12" },
-                    { Province: "Iloilo", LGU: "Janiuay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-474", Latest_Date_of_Approval: "2017-07-18" },
-                    { Province: "Iloilo", LGU: "Lambunao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-418", Latest_Date_of_Approval: "2018-06-11" },
-                    { Province: "Iloilo", LGU: "Leganes", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2022-320", Latest_Date_of_Approval: "2022-06-21" },
-                    { Province: "Iloilo", LGU: "Lemery", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2003-060", Latest_Date_of_Approval: "2003-05-27" },
-                    { Province: "Iloilo", LGU: "Leon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2002-135", Latest_Date_of_Approval: "2002-09-10" },
-                    { Province: "Iloilo", LGU: "Maasin", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2014-112", Latest_Date_of_Approval: "2014-04-01" },
-                    { Province: "Iloilo", LGU: "Miag-ao", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-743", Latest_Date_of_Approval: "2018-11-27" },
-                    { Province: "Iloilo", LGU: "Mina", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2016-579", Latest_Date_of_Approval: "2016-12-13" },
-                    { Province: "Iloilo", LGU: "New Lucena", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2015-307", Latest_Date_of_Approval: "2015-08-18" },
-                    { Province: "Iloilo", LGU: "Oton", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. R-2025-801", Latest_Date_of_Approval: "2025-12-16" },
-                    { Province: "Iloilo", LGU: "Passi City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2014-188", Latest_Date_of_Approval: "2014-05-27" },
-                    { Province: "Iloilo", LGU: "Pavia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-510", Latest_Date_of_Approval: "2019-10-29" },
-                    { Province: "Iloilo", LGU: "Pototan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2013-029", Latest_Date_of_Approval: "2013-01-30" },
-                    { Province: "Iloilo", LGU: "San Dionisio", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2006-160", Latest_Date_of_Approval: "2006-10-30" },
-                    { Province: "Iloilo", LGU: "San Enrique", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2003-034", Latest_Date_of_Approval: "2003-03-11" },
-                    { Province: "Iloilo", LGU: "San Joaquin", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-475", Latest_Date_of_Approval: "2019-10-15" },
-                    { Province: "Iloilo", LGU: "San Miguel", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2014-250", Latest_Date_of_Approval: "2014-07-15" },
-                    { Province: "Iloilo", LGU: "San Rafael", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 190", Latest_Date_of_Approval: "1984-05-03" },
-                    { Province: "Iloilo", LGU: "Sta. Barbara", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2013-136", Latest_Date_of_Approval: "2013-05-30" },
-                    { Province: "Iloilo", LGU: "Sara", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "HLURB Resolution 39-4", Latest_Date_of_Approval: "1980-07-31" },
-                    { Province: "Iloilo", LGU: "Tigbauan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2015-267", Latest_Date_of_Approval: "2015-07-23" },
-                    { Province: "Iloilo", LGU: "Tubungan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2017-475", Latest_Date_of_Approval: "2017-07-18" },
-                    { Province: "Iloilo", LGU: "Zarraga", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2015-398", Latest_Date_of_Approval: "2015-11-03" }
+                    // Negros Occidental records
+                    { Province: "Negros Occidental", LGU: "Bacolod City", Approved_By: "DHSUD", Latest_Plan_Res: "DHSUD DC No. 2022-005", Latest_Date_of_Approval: "2022-08-15" },
+                    { Province: "Negros Occidental", LGU: "Bago City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-1234", Latest_Date_of_Approval: "2021-11-20" },
+                    { Province: "Negros Occidental", LGU: "Binalbagan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-089", Latest_Date_of_Approval: "2020-07-15" },
+                    { Province: "Negros Occidental", LGU: "Cadiz City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-567", Latest_Date_of_Approval: "2019-09-10" },
+                    { Province: "Negros Occidental", LGU: "Calatrava", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-456", Latest_Date_of_Approval: "2021-03-25" },
+                    { Province: "Negros Occidental", LGU: "Candoni", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-234", Latest_Date_of_Approval: "2020-12-01" },
+                    { Province: "Negros Occidental", LGU: "Cauayan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-789", Latest_Date_of_Approval: "2018-05-20" },
+                    { Province: "Negros Occidental", LGU: "Enrique B. Magalona", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-345", Latest_Date_of_Approval: "2021-06-30" },
+                    { Province: "Negros Occidental", LGU: "Escalante City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-678", Latest_Date_of_Approval: "2020-10-15" },
+                    { Province: "Negros Occidental", LGU: "Himamaylan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-901", Latest_Date_of_Approval: "2019-12-05" },
+                    { Province: "Negros Occidental", LGU: "Hinigaran", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-234", Latest_Date_of_Approval: "2021-04-12" },
+                    { Province: "Negros Occidental", LGU: "Hinoba-an", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-567", Latest_Date_of_Approval: "2020-08-20" },
+                    { Province: "Negros Occidental", LGU: "Ilog", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-234", Latest_Date_of_Approval: "2018-11-30" },
+                    { Province: "Negros Occidental", LGU: "Isabela", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-789", Latest_Date_of_Approval: "2021-09-15" },
+                    { Province: "Negros Occidental", LGU: "Kabankalan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-123", Latest_Date_of_Approval: "2020-03-20" },
+                    { Province: "Negros Occidental", LGU: "La Carlota City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-456", Latest_Date_of_Approval: "2019-07-25" },
+                    { Province: "Negros Occidental", LGU: "La Castellana", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-567", Latest_Date_of_Approval: "2021-08-10" },
+                    { Province: "Negros Occidental", LGU: "Manapla", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-890", Latest_Date_of_Approval: "2020-05-15" },
+                    { Province: "Negros Occidental", LGU: "Moises Padilla", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-456", Latest_Date_of_Approval: "2018-09-10" },
+                    { Province: "Negros Occidental", LGU: "Murcia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-901", Latest_Date_of_Approval: "2021-10-20" },
+                    { Province: "Negros Occidental", LGU: "Pontevedra", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-234", Latest_Date_of_Approval: "2019-04-15" },
+                    { Province: "Negros Occidental", LGU: "Pulupandan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-345", Latest_Date_of_Approval: "2020-06-30" },
+                    { Province: "Negros Occidental", LGU: "Sagay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-678", Latest_Date_of_Approval: "2021-11-05" },
+                    { Province: "Negros Occidental", LGU: "San Carlos City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-789", Latest_Date_of_Approval: "2020-09-25" },
+                    { Province: "Negros Occidental", LGU: "San Enrique", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-567", Latest_Date_of_Approval: "2018-07-20" },
+                    { Province: "Negros Occidental", LGU: "Silay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-012", Latest_Date_of_Approval: "2021-01-15" },
+                    { Province: "Negros Occidental", LGU: "Sipalay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-678", Latest_Date_of_Approval: "2019-08-30" },
+                    { Province: "Negros Occidental", LGU: "Talisay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-456", Latest_Date_of_Approval: "2020-07-10" },
+                    { Province: "Negros Occidental", LGU: "Toboso", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-123", Latest_Date_of_Approval: "2018-03-15" },
+                    { Province: "Negros Occidental", LGU: "Valladolid", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-234", Latest_Date_of_Approval: "2021-05-20" },
+                    { Province: "Negros Occidental", LGU: "Victorias City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-567", Latest_Date_of_Approval: "2020-08-15" },
+                    // Negros Oriental records
+                    { Province: "Negros Oriental", LGU: "Amlan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-123", Latest_Date_of_Approval: "2021-03-10" },
+                    { Province: "Negros Oriental", LGU: "Ayungon", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-456", Latest_Date_of_Approval: "2020-06-15" },
+                    { Province: "Negros Oriental", LGU: "Bacong", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-789", Latest_Date_of_Approval: "2019-09-20" },
+                    { Province: "Negros Oriental", LGU: "Bais City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-234", Latest_Date_of_Approval: "2021-04-25" },
+                    { Province: "Negros Oriental", LGU: "Bayawan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-567", Latest_Date_of_Approval: "2020-07-30" },
+                    { Province: "Negros Oriental", LGU: "Bindoy", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-890", Latest_Date_of_Approval: "2018-10-15" },
+                    { Province: "Negros Oriental", LGU: "Canlaon City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-345", Latest_Date_of_Approval: "2021-05-20" },
+                    { Province: "Negros Oriental", LGU: "Dauin", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-678", Latest_Date_of_Approval: "2020-08-25" },
+                    { Province: "Negros Oriental", LGU: "Dumaguete City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-901", Latest_Date_of_Approval: "2019-11-10" },
+                    { Province: "Negros Oriental", LGU: "Guihulngan City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-456", Latest_Date_of_Approval: "2021-06-30" },
+                    { Province: "Negros Oriental", LGU: "Jimalalud", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-789", Latest_Date_of_Approval: "2020-09-05" },
+                    { Province: "Negros Oriental", LGU: "La Libertad", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-012", Latest_Date_of_Approval: "2018-01-20" },
+                    { Province: "Negros Oriental", LGU: "Mabinay", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-567", Latest_Date_of_Approval: "2021-07-15" },
+                    { Province: "Negros Oriental", LGU: "Manjuyod", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-890", Latest_Date_of_Approval: "2020-10-10" },
+                    { Province: "Negros Oriental", LGU: "Pamplona", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-123", Latest_Date_of_Approval: "2019-02-28" },
+                    { Province: "Negros Oriental", LGU: "San Jose", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-678", Latest_Date_of_Approval: "2021-08-20" },
+                    { Province: "Negros Oriental", LGU: "Santa Catalina", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-234", Latest_Date_of_Approval: "2020-04-15" },
+                    { Province: "Negros Oriental", LGU: "Siaton", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-456", Latest_Date_of_Approval: "2018-06-10" },
+                    { Province: "Negros Oriental", LGU: "Sibulan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-789", Latest_Date_of_Approval: "2021-09-25" },
+                    { Province: "Negros Oriental", LGU: "Tanjay City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-345", Latest_Date_of_Approval: "2020-05-20" },
+                    { Province: "Negros Oriental", LGU: "Tayasan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-678", Latest_Date_of_Approval: "2019-08-05" },
+                    { Province: "Negros Oriental", LGU: "Valencia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-901", Latest_Date_of_Approval: "2021-10-15" },
+                    { Province: "Negros Oriental", LGU: "Vallehermoso", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2020-012", Latest_Date_of_Approval: "2020-01-20" },
+                    { Province: "Negros Oriental", LGU: "Zamboanguita", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2018-789", Latest_Date_of_Approval: "2018-12-05" }
                 ];
-                console.log("📋 Using fallback CLUP records with correct Guimaras data:", clupRecords.length);
+                console.log("📋 Using fallback CLUP records with Negros data:", clupRecords.length);
             }
         }
         
@@ -4481,13 +4432,11 @@ async function fetchClupRecords() {
                 clupRecords = [];
             }
         } else {
-            // Use fallback data with correct Guimaras records
+            // Use fallback data with Negros records
             clupRecords = [
-                { Province: "Guimaras", LGU: "Buenavista", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. 687", Latest_Date_of_Approval: "2025-12-04" },
-                { Province: "Guimaras", LGU: "Jordan", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "Resolution No. R-592", Latest_Date_of_Approval: "2025-10-02" },
-                { Province: "Guimaras", LGU: "Nueva Valencia", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 36", Latest_Date_of_Approval: "2000-06-30" },
-                { Province: "Guimaras", LGU: "San Lorenzo", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 37", Latest_Date_of_Approval: "2000-06-30" },
-                { Province: "Guimaras", LGU: "Sibunag", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 204", Latest_Date_of_Approval: "2012-09-19" }
+                { Province: "Negros Occidental", LGU: "Bacolod City", Approved_By: "DHSUD", Latest_Plan_Res: "DHSUD DC No. 2022-005", Latest_Date_of_Approval: "2022-08-15" },
+                { Province: "Negros Occidental", LGU: "Bago City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2021-1234", Latest_Date_of_Approval: "2021-11-20" },
+                { Province: "Negros Oriental", LGU: "Dumaguete City", Approved_By: "Sangguniang Panlalawigan", Latest_Plan_Res: "SP Resolution 2019-901", Latest_Date_of_Approval: "2019-11-10" }
             ];
             localStorage.setItem("clupRecords", JSON.stringify(clupRecords));
         }
@@ -4497,8 +4446,8 @@ async function fetchClupRecords() {
    function populateProvinces() {
     let select = document.getElementById("provinceSelect");
     
-    // Hardcoded list of 6 provinces/HUCs
-    const provinceList = ["Aklan", "Antique", "Capiz", "Guimaras", "Iloilo", "Iloilo City"];
+    // Hardcoded list of provinces/HUCs for Negros Island Region
+    const provinceList = ["Negros Occidental", "Negros Oriental", "Siquijor"];
     
     select.innerHTML = '<option value="">-- Choose Province/HUC --</option>' +
         provinceList
@@ -4528,8 +4477,8 @@ function filterLguByProvince() {
     console.log("Selected Province/HUC:", prov);
     console.log("========================================");
     
-    // Iloilo City - Hide LGU entirely (no districts)
-    if (prov === "Iloilo City" || prov.toLowerCase() === "iloilo city") {
+    // Bacolod City - Hide LGU entirely (no districts)
+    if (prov === "Bacolod City" || prov.toLowerCase() === "bacolod city") {
         // HIDE the LGU dropdown - do not show any options
         lguSelect.style.display = "none";
         lguSelect.disabled = true;
@@ -4538,19 +4487,19 @@ function filterLguByProvince() {
         // Clear the LGU selection
         lguSelect.innerHTML = '<option value="">-- Select LGU --</option>';
         
-        // Also clear the city/province fields since Iloilo City is the LGU itself
-        document.getElementById("city").value = "Iloilo City";
-        document.getElementById("province").value = "Iloilo City";
+        // Also clear the city/province fields since Bacolod City is the LGU itself
+        document.getElementById("city").value = "Bacolod City";
+        document.getElementById("province").value = "Negros Occidental";
         document.getElementById("approvedBy").value = "DHSUD";
-        document.getElementById("circularNo").value = "DHSUD DC No. 2022-002";
-        document.getElementById("approvalDate").value = "2022-05-12";
-        checkIloiloCityConditional();
+        document.getElementById("circularNo").value = "DHSUD DC No. 2022-005";
+        document.getElementById("approvalDate").value = "2022-08-15";
+        checkBacolodCityConditional();
         
-        console.log("✅ Iloilo City selected - LGU hidden");
+        console.log("✅ Bacolod City selected - LGU hidden");
         return;
     }
     
-    // Show LGU dropdown when a province is selected (Aklan, Antique, Capiz, Guimaras, Iloilo)
+    // Show LGU dropdown when a province is selected
     lguSelect.style.display = "block";
     lguSelect.disabled = false;
     if (lguLabel) lguLabel.style.display = "block";
@@ -4566,8 +4515,8 @@ function filterLguByProvince() {
             
             if (normalizedRecordProv === normalizedSelectedProv) {
                 let lguName = record.LGU || record.lgu || "";
-                // Skip Iloilo City when province is Iloilo
-                if (prov === "Iloilo" && lguName === "Iloilo City") {
+                // Skip Bacolod City when province is Negros Occidental
+                if (prov === "Negros Occidental" && lguName === "Bacolod City") {
                     return;
                 }
                 if (lguName) {
@@ -4586,28 +4535,22 @@ function filterLguByProvince() {
     // Fallback data if no CLUP records found
     if (matchedLGUs.length === 0) {
         const fallbackData = {
-            "Aklan": {
-                lgus: ["Altavas", "Balete", "Banga", "Batan", "Buruanga", "Ibajay", "Kalibo", "Lezo", "Libacao", "Madalag", "Makato", "Malay", "Malinao", "Nabas", "New Washington", "Numancia", "Tangalan"]
+            "Negros Occidental": {
+                lgus: ["Bago City", "Binalbagan", "Cadiz City", "Calatrava", "Candoni", "Cauayan", "Enrique B. Magalona", "Escalante City", "Himamaylan City", "Hinigaran", "Hinoba-an", "Ilog", "Isabela", "Kabankalan City", "La Carlota City", "La Castellana", "Manapla", "Moises Padilla", "Murcia", "Pontevedra", "Pulupandan", "Sagay City", "San Carlos City", "San Enrique", "Silay City", "Sipalay City", "Talisay City", "Toboso", "Valladolid", "Victorias City"]
             },
-            "Antique": {
-                lgus: ["Anini-y", "Barbaza", "Belison", "Bugasong", "Caluya", "Culasi", "Hamtic", "Laua-an", "Libertad", "Pandan", "Patnongon", "San Jose", "San Remigio", "Sebaste", "Sibalom", "Tibiao", "Tobias Fornier", "Valderrama"]
+            "Negros Oriental": {
+                lgus: ["Amlan", "Ayungon", "Bacong", "Bais City", "Bayawan City", "Bindoy", "Canlaon City", "Dauin", "Dumaguete City", "Guihulngan City", "Jimalalud", "La Libertad", "Mabinay", "Manjuyod", "Pamplona", "San Jose", "Santa Catalina", "Siaton", "Sibulan", "Tanjay City", "Tayasan", "Valencia", "Vallehermoso", "Zamboanguita"]
             },
-            "Capiz": {
-                lgus: ["Cuartero", "Dao", "Dumalag", "Dumarao", "Ivisan", "Jamindan", "Ma-ayon", "Mambusao", "Panay", "Panitan", "Pilar", "Pontevedra", "President Roxas", "Roxas City", "Sapian", "Sigma", "Tapaz"]
-            },
-            "Guimaras": {
-                lgus: ["Buenavista", "Jordan", "Nueva Valencia", "San Lorenzo", "Sibunag"]
-            },
-            "Iloilo": {
-                lgus: ["Ajuy", "Alimodian", "Anilao", "Badiangan", "Balasan", "Banate", "Barotac Nuevo", "Barotac Viejo", "Batad", "Bingawan", "Cabatuan", "Calinog", "Carles", "Concepcion", "Dingle", "Dueñas", "Dumangas", "Estancia", "Guimbal", "Igbaras", "Janiuay", "Lambunao", "Leganes", "Lemery", "Leon", "Maasin", "Miagao", "Mina", "New Lucena", "Oton", "Passi City", "Pavia", "Pototan", "San Dionisio", "San Enrique", "San Joaquin", "San Miguel", "San Rafael", "Santa Barbara", "Sara", "Tigbauan", "Tubungan", "Zarraga"]
+            "Siquijor": {
+                lgus: ["Enrique Villanueva", "Larena", "Lazi", "Maria", "San Juan", "Siquijor"]
             }
         };
         
         let provinceData = fallbackData[prov];
         if (provinceData) {
             let lguNames = provinceData.lgus || [];
-            if (prov === "Iloilo") {
-                lguNames = lguNames.filter(name => name !== "Iloilo City");
+            if (prov === "Negros Occidental") {
+                lguNames = lguNames.filter(name => name !== "Bacolod City");
             }
             lguNames.forEach(name => {
                 matchedLGUs.push({
@@ -4725,12 +4668,12 @@ function filterLguByProvince() {
         document.getElementById("approvalDate").value = "";
     }
 
-    checkIloiloCityConditional();
+    checkBacolodCityConditional();
 }
 
-function checkIloiloCityConditional() {
+function checkBacolodCityConditional() {
     // Always show the Purpose and Land Class fields
-    var conditionalDiv = document.getElementById("iloiloConditionalFields");
+    var conditionalDiv = document.getElementById("negrosConditionalFields");
     if (conditionalDiv) {
         conditionalDiv.style.display = "block";
     }
@@ -5694,7 +5637,7 @@ async function saveZoningRecord(e) {
     if (rec.certificationNo) {
         const parts = rec.certificationNo.split('-');
         if (parts.length === 3) {
-            const yearSeq = parts[1].replace('RVI', '') + '-' + parts[2];
+            const yearSeq = parts[1].replace('NIR', '') + '-' + parts[2];
             document.getElementById('certNumberParts').value = yearSeq;
             updateCertPreview();
         }
@@ -5714,7 +5657,7 @@ async function saveZoningRecord(e) {
     
     recalcTotalArea();
     document.getElementById("parcels").value = document.querySelectorAll(".land-holding-row").length;
-    checkIloiloCityConditional();
+    checkBacolodCityConditional();
     
     if (rec.purpose) {
         document.getElementById("purpose").value = rec.purpose;
@@ -5758,7 +5701,7 @@ async function saveZoningRecord(e) {
     currentEditingId = null;
     console.log("🔄 Reset currentEditingId to null");
     
-    document.getElementById("iloiloConditionalFields").style.display = "none";
+    document.getElementById("negrosConditionalFields").style.display = "none";
     document.getElementById("parcels").value = 1;
     
     // Make Total Area editable
@@ -5912,20 +5855,17 @@ function printOfficialRecord(id) {
     const finalCircularNo = clupData?.Latest_Plan_Res || rec.circularNo || "__________";
     const finalApprovalDate = clupData?.Latest_Date_of_Approval || rec.approvalDate || "";
 
-    // FIX: Handle Iloilo City vs Iloilo province municipalities
+    // FIX: Handle Bacolod City vs other cities
     const cityLower = finalCity.toLowerCase();
     const provinceLower = finalProvince.toLowerCase();
 
-    // If it's Iloilo City or any district, display as "Iloilo City"
-    if (cityLower === "iloilo city" || 
-        cityLower === "iloilo" ||
-        cityLower.includes("iloilo city district") ||
-        cityLower.includes("iloilo city") ||
-        (cityLower.includes("iloilo") && cityLower.includes("district"))) {
-        // For Iloilo City or any of its districts, use "Iloilo City"
-        finalCity = "Iloilo City";
-        // Remove the province since it's redundant
-        finalProvince = "";
+    // If it's Bacolod City, display as "Bacolod City"
+    if (cityLower === "bacolod city" || 
+        cityLower === "bacolod" ||
+        cityLower.includes("bacolod city") ||
+        (cityLower.includes("bacolod"))) {
+        finalCity = "Bacolod City";
+        finalProvince = "Negros Occidental";
     }
 
     console.log("📋 Final City:", finalCity);
@@ -6042,8 +5982,8 @@ function printOfficialRecord(id) {
         console.log("✅ Formatted approval date for print:", approvalDateFormatted);
     } else {
         console.warn("⚠️ No approval date found");
-        if (finalCity.toLowerCase().includes("iloilo city") || finalProvince === "Iloilo City") {
-            approvalDateFormatted = "May 12, 2022";
+        if (finalCity.toLowerCase().includes("bacolod city") || finalProvince === "Negros Occidental") {
+            approvalDateFormatted = "August 15, 2022";
         }
     }
     
@@ -6242,7 +6182,7 @@ console.log("🔍 showConversionText:", showConversionText);
                 <div style="text-align:center; margin:15px 0;">
                     <div style="font-size:11pt; font-weight:bold;">Republic of the Philippines</div>
                     <div style="font-size:11pt; font-weight:bold;">DEPARTMENT OF HUMAN SETTLEMENTS AND URBAN DEVELOPMENT</div>
-                    <div style="font-size:10pt;">Region VI, Iloilo City</div>
+                    <div style="font-size:10pt;">Negros Island Region</div>
                     <div style="font-size:12pt; font-weight:bold; text-decoration:underline; margin-top:10px;">CERTIFICATION</div>
                 </div>
                 
@@ -6309,7 +6249,7 @@ console.log("🔍 showConversionText:", showConversionText);
                 
                 <!-- Issuance Statement -->
                 <p style="margin-left:0.6cm; text-indent:1.5cm; text-align:justify; font-size:12pt; margin-top:0; margin-bottom: 0; line-height:1.5;">This certification is issued upon the request of <strong>${escapeHtml(requestedBy)}</strong> for whatever legal purpose/s it may serve.</p>
-                <p style="margin-left:0.6cm; text-indent:1.5cm; text-align:justify; font-size:12pt; margin-top:0; margin-bottom: 0; line-height:1.5;"> Given this <strong>${formattedDateIssued}</strong> in Iloilo City, Philippines.</p>
+                <p style="margin-left:0.6cm; text-indent:1.5cm; text-align:justify; font-size:12pt; margin-top:0; margin-bottom: 0; line-height:1.5;"> Given this <strong>${formattedDateIssued}</strong> in Bacolod City, Philippines.</p>
                 
                 <!-- Signature Area -->
                 <div style="margin-top:40px; text-align:right;">
@@ -6404,7 +6344,7 @@ console.log("🔍 showConversionText:", showConversionText);
         let accSortField = "certificationNo";
         let accSortOrder = "asc";
 
-        // Helper function to sort certification numbers naturally (e.g., SZC-RVI25-001, SZC-RVI25-002, SZC-RVI25-010)
+        // Helper function to sort certification numbers naturally (e.g., SZC-NIR25-001, SZC-NIR25-002, SZC-NIR25-010)
         function naturalSortCertNumbers(a, b, field) {
             let valA = a[field] || "";
             let valB = b[field] || "";
@@ -7001,8 +6941,8 @@ console.log("🔍 showConversionText:", showConversionText);
     function initMapWithBetterOptions() {
         if (!popupMap) return;
         
-        // Set default view to Philippines (Region VI - Iloilo area)
-        popupMap.setView([10.802, 123.426], 13);
+        // Set default view to Negros Island (Bacolod area)
+        popupMap.setView([10.667, 122.950], 12);
         
         // Add scale bar
         L.control.scale({ metric: true, imperial: false, position: 'bottomleft' }).addTo(popupMap);
@@ -7668,9 +7608,9 @@ async function init() {
     
     // Initialize Purpose fields
     setTimeout(function() {
-        var iloiloDiv = document.getElementById("iloiloConditionalFields");
-        if (iloiloDiv) {
-            iloiloDiv.style.display = "block";
+        var negrosDiv = document.getElementById("negrosConditionalFields");
+        if (negrosDiv) {
+            negrosDiv.style.display = "block";
         }
         var purposeSelect = document.getElementById("purpose");
         if (purposeSelect) {
@@ -8662,8 +8602,8 @@ async function deleteSavedPointMarker(certNo) {
 function populateProvinces() {
     let select = document.getElementById("provinceSelect");
     
-    // Hardcoded list of 6 provinces/HUCs
-    const provinceList = ["Aklan", "Antique", "Capiz", "Guimaras", "Iloilo", "Iloilo City"];
+    // Hardcoded list of provinces/HUCs for Negros Island Region
+    const provinceList = ["Negros Occidental", "Negros Oriental", "Siquijor"];
     
     select.innerHTML = '<option value="">-- Choose Province/HUC --</option>' +
         provinceList
@@ -8725,7 +8665,7 @@ fetchCertifications = async function() {
 // Get the next certification number sequence
 function getNextCertSequence(month, year) {
     let maxSeq = 0;
-    const prefix = `SZC-RVI${year}-`;
+    const prefix = `SZC-NIR${year}-`;
     
     // Check all records
     const records = zoningCertifications || JSON.parse(localStorage.getItem("zoningCertifications") || "[]");
@@ -8767,9 +8707,9 @@ function updateCertPreview() {
         // Valid format
         const year = match[1];
         const seq = match[2];
-        const fullCert = `SZC-RVI${year}-${seq}`;
+        const fullCert = `SZC-NIR${year}-${seq}`;
         
-        preview.innerHTML = `Full: SZC-RVI${year}-${seq}`;
+        preview.innerHTML = `Full: SZC-NIR${year}-${seq}`;
         certField.value = fullCert;
         
         // Mark as valid
@@ -8781,13 +8721,13 @@ function updateCertPreview() {
     } else if (value === '') {
         // Empty - show placeholder
         const year = new Date().getFullYear().toString().slice(-2);
-        preview.innerHTML = `Full: SZC-RVI${year}-NNN`;
+        preview.innerHTML = `Full: SZC-NIR${year}-NNN`;
         certField.value = '';
         preview.style.color = '#64748b';
         preview.style.fontWeight = 'normal';
     } else {
         // Invalid format
-        preview.innerHTML = `⚠️ Invalid format: SZC-RVI-${value}`;
+        preview.innerHTML = `⚠️ Invalid format: SZC-NIR-${value}`;
         preview.style.color = '#dc3545';
         preview.style.fontWeight = '500';
         certField.value = '';
@@ -8815,14 +8755,14 @@ function autoFillCertNumber() {
         updateCertPreview();
         
         // Show toast
-        showToast(`📋 Auto-filled: SZC-RVI${year}-${seq}`, "success");
+        showToast(`📋 Auto-filled: SZC-NIR${year}-${seq}`, "success");
     }
 }
 
 // Get the next certification number sequence
 function getNextCertSequence(month, year) {
     let maxSeq = 0;
-    const prefix = `SZC-RVI${year}-`;
+    const prefix = `SZC-NIR${year}-`;
     
     // Check all records
     const records = zoningCertifications || JSON.parse(localStorage.getItem("zoningCertifications") || "[]");
@@ -8879,7 +8819,7 @@ getNextCertNumber = function() {
     const year = now.getFullYear().toString().slice(-2);
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const nextSeq = getNextCertSequence(month, year);
-    return `SZC-RVI${year}-${nextSeq.toString().padStart(3, '0')}`;
+    return `SZC-NIR${year}-${nextSeq.toString().padStart(3, '0')}`;
 };
 
 // Call init when page loads
@@ -8923,15 +8863,15 @@ function getClupDataForCity(city, province) {
         return found;
     }
     
-    // Third try: For Iloilo City districts, find the Iloilo City record
-    if (city && (city.toLowerCase().includes("iloilo city") || province === "Iloilo City")) {
+    // Third try: For Bacolod City districts, find the Bacolod City record
+    if (city && (city.toLowerCase().includes("bacolod city") || province === "Negros Occidental")) {
         found = clupRecords.find(r => {
             const rLGU = (r.LGU || r.lgu || "").toLowerCase().trim();
             const rProvince = (r.Province || r.province || "").toLowerCase().trim();
-            return rLGU === "iloilo city" || rProvince === "iloilo city";
+            return rLGU === "bacolod city" || rProvince === "negros occidental";
         });
         if (found) {
-            console.log("✅ Found Iloilo City CLUP data:", found);
+            console.log("✅ Found Bacolod City CLUP data:", found);
             return found;
         }
     }
